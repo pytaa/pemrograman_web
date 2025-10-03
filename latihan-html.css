@@ -1,0 +1,428 @@
+
+body {
+  background-color: #e8faff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #222;
+  text-align: center;
+}
+
+p {
+  font-size: 15px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+/*Container bagian input*/
+.container {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+
+/*Pengisian data manual*/
+#form-mahasiswa {
+  background-color: white;
+  width: 400px; 
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 40px 25px;
+  margin: 0 auto;
+}
+
+.formInput {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size:medium;
+}
+
+input[type="text"] {
+  width: 96%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: 0.3s ease;
+}
+
+/*Highlight input yang dipilih*/
+input[type="text"]:focus{
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.buttonform {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+button[type="submit"] {
+  background-color: #021068;
+  color: white;
+}
+
+button[type="reset"] {
+  background-color: #555;
+  color: white;
+}
+
+button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* Upload Section */
+.upload-section {
+  margin: 15px 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Input File */
+.upload-section input[type="file"] {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #f9f9f9;
+}
+
+/* Tombol Upload */
+.upload-section button {
+  padding: 10px 25px; 
+  border: none;
+  border-radius: 20px; 
+  background-color: green;
+  color: white;
+  font-size: 16px; 
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.upload-section button:hover {
+  background-color: darkgreen;
+  transform: scale(1.05); 
+}
+
+/* Modal (background hitam transparan) */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+
+/* Konten popup */
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 15px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Input File */
+.modal-content input[type="file"] {
+  padding: 6px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #f9f9f9;
+}
+
+/* Tombol Upload */
+.modal-content button {
+  padding: 6px 15px;
+  border: none;
+  border-radius: 15px;
+  background-color: green;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.modal-content button:hover {
+  background-color: darkgreen;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 3px 8px;
+  width: 300px;
+  margin: 8px auto;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+}
+
+.search-container input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  padding: 5px;
+  background: transparent;
+}
+
+.search-container input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Tombol Close (X) */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: black;
+}
+
+.icon svg {
+  width: 16px;
+  height: 16px; /* ikon lebih kecil */
+}
+
+#clearBtn {
+  font-size: 18px;
+  color: #555;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  border-radius: 50%;
+  padding: 2px 6px;
+}
+
+#clearBtn:hover {
+  transform: scale(1.2);
+  color: #ff3b30; /* merah biar lebih jelas */
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.clear-btn {
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.clear-btn:hover {
+  transform: scale(1.2);
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Container untuk filter + sort */
+.filter-sort-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap; /* biar tetap rapi di layar kecil */
+  margin: 15px 0;
+}
+
+/* Sesuaikan style filter & sort agar lebih kompak */
+.filter,
+.sort-section {
+  margin: 0; /* hilangkan margin biar rata */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter select,
+.sort-section select {
+  padding: 8px 15px;
+  border-radius: 20px; /* Sama untuk keduanya */
+  border: 1px solid #ccc;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: border-color 0.3s, background-color 0.3s;
+  min-width: 140px; /* Biar seragam */
+}
+
+.filter select:hover,
+.sort-section select:hover {
+  border-color: #888;
+  background-color: #f1f1f1;
+}
+
+/* Label Sort agar sejajar rapi */
+.sort-section label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-right: 5px;
+}
+
+.table-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; 
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+table {
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    table-layout: auto;
+    width: 80%;
+    margin: 0 auto;
+}
+
+thead {
+    background-color: #021068;
+    color: white;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+td:first-child {
+    font-weight: bold;
+    color: #333;
+}
+
+td button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+td button[data-edit] {
+      background-color: #ffc107;
+      color: #333;
+      margin-right: 5px;
+    }
+
+td button[data-del] {
+    background-color: #dc3545;
+    color: white;
+}
+
+td button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+.export-section {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  z-index: 999;
+}
+
+#exportBtn {
+  padding: 15px 28px;
+  border: none;
+  border-radius: 40px;       /* Lebih bulat */
+  background: linear-gradient(135deg, #021068, #0634ff);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(2, 16, 104, 0.35); /* Shadow lebih tebal */
+  transition: all 0.25s ease;
+}
+
+#exportBtn:hover {
+  background: linear-gradient(135deg, #0320a8, #365cff);
+  transform: scale(1.08) translateY(-3px); /* Sedikit melayang */
+  box-shadow: 0 12px 24px rgba(2, 16, 104, 0.45);
+}
+
+/* Dropdown */
+.export-options {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+.export-options button {
+  padding: 10px 18px;
+  border: none;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.25s;
+  width: 140px;
+}
+
+.export-options button:hover {
+  background: #f0f0f0;
+}
+
