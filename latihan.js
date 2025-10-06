@@ -172,6 +172,38 @@ function filterData() {
   });
 }
 
+function updateFilterOptions() {
+  // Ambil semua kelas & prodi unik dari data
+  let kelasSet = [...new Set(data.map(item => item.kelas).filter(Boolean))].sort();
+  let prodiSet = [...new Set(data.map(item => item.prodi).filter(Boolean))].sort();
+
+  // Simpan pilihan user sebelumnya
+  const selectedKelas = filterKelas.value;
+  const selectedProdi = filterProdi.value;
+
+  // Render ulang kelas
+  filterKelas.innerHTML = '<option value="">Semua Kelas</option>';
+  kelasSet.forEach(kls => {
+    const option = document.createElement("option");
+    option.value = kls;
+    option.textContent = kls;
+    filterKelas.appendChild(option);
+  });
+
+  // Render ulang prodi
+  filterProdi.innerHTML = '<option value="">Semua Prodi</option>';
+  prodiSet.forEach(p => {
+    const option = document.createElement("option");
+    option.value = p;
+    option.textContent = p;
+    filterProdi.appendChild(option);
+  });
+
+  // Kembalikan pilihan sebelumnya kalau masih ada di opsi
+  if (kelasSet.includes(selectedKelas)) filterKelas.value = selectedKelas;
+  if (prodiSet.includes(selectedProdi)) filterProdi.value = selectedProdi;
+}
+
 // ------------------- UPLOAD CSV -------------------
 // Ambil elemen
 const modal = document.getElementById("uploadModal");
