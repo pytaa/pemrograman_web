@@ -395,3 +395,120 @@ td button:hover {
   transform: scale(1.08) translateY(-3px); /* Sedikit melayang */
   box-shadow: 0 12px 24px rgba(2, 16, 104, 0.45);
 }
+
+/* ------------------- MODAL PREVIEW PDF ------------------- */
+.modal {
+  display: none; /* disembunyikan secara default */
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5); /* latar belakang gelap transparan */
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animasi muncul */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Isi kotak modal */
+.modal-content {
+  background-color: #ffffff;
+  margin: 5% auto;
+  padding: 20px 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 850px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.35s ease-out;
+}
+
+/* Animasi naik */
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Tombol close (X) */
+.close-preview {
+  color: #888;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  float: right;
+  transition: color 0.2s ease;
+}
+
+.close-preview:hover {
+  color: #000;
+}
+
+/* Judul modal */
+.modal-content h2 {
+  text-align: center;
+  color: #021068;
+  margin-bottom: 10px;
+}
+
+/* Info filter/search */
+#previewInfo {
+  text-align: center;
+  color: #555;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+/* Tabel preview */
+#previewTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+#previewTable th {
+  background-color: #021068;
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+
+#previewTable td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+#previewTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#previewTable tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Tombol konfirmasi ekspor */
+/* Tombol konfirmasi ekspor (diseragamkan dengan tombol export utama) */
+#confirmExportBtn {
+  padding: 15px 28px;
+  border: none;
+  border-radius: 40px; /* sama dengan exportBtn */
+  background: linear-gradient(135deg, #021068, #0634ff);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(2, 16, 104, 0.35);
+  transition: all 0.25s ease;
+  display: block;
+  margin: 25px auto 5px auto; /* posisikan di tengah modal */
+}
+
+#confirmExportBtn:hover {
+  background: linear-gradient(135deg, #0320a8, #365cff);
+  transform: scale(1.03)
+}

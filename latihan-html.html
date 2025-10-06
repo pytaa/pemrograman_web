@@ -132,6 +132,31 @@
         <button id="exportBtn">Ekspor PDF</button>
       </div>
 
+      <!-- Modal Preview Sebelum Ekspor PDF -->
+      <div id="previewModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+          <span class="close-preview" style="float:right; cursor:pointer;">&times;</span>
+          <h2>Preview Data yang Akan Diekspor</h2>
+          <p id="previewInfo" style="font-style: italic; color: #444;"></p>
+          <div style="max-height: 400px; overflow:auto;">
+            <table id="previewTable">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>NIM</th>
+                  <th>Kelas</th>
+                  <th>Program Studi</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div style="text-align:right; margin-top:10px;">
+            <button id="confirmExportBtn">Konfirmasi Ekspor PDF</button>
+          </div>
+        </div>
+      </div>
 
   <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

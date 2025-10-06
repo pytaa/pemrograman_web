@@ -345,7 +345,7 @@ const exportOptions = document.getElementById("exportOptions");
 
 // ----------------------- EKSPOR DATA -------------------------
 // === FUNCTION: Download PDF ===
-document.getElementById("exportBtn").addEventListener("click", downloadPDF);
+document.getElementById("exportBtn").addEventListener("click", showPreviewBeforeExport);
 
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
@@ -373,18 +373,31 @@ function downloadPDF() {
     doc.text(subtitle.trim(), 40, 60);
   }
 
-  let startY = subtitle.trim() !== "" ? 80 : 60; // tabel mulai lebih bawah kalau ada subtitle
+  let startY = subtitle.trim() !== "" ? 80 : 60;
 
+  // 🔽 Ambil hanya baris yang terlihat di tabel
   let rows = [];
   document.querySelectorAll("#tbody tr").forEach(tr => {
-    let row = [];
-    tr.querySelectorAll("td").forEach(td => row.push(td.innerText));
-    rows.push(row);
+    if (tr.style.display !== "none") { // hanya yang tampil
+      const cells = tr.querySelectorAll("td");
+      rows.push([
+        cells[0]?.innerText || "",
+        cells[1]?.innerText || "",
+        cells[2]?.innerText || "",
+        cells[3]?.innerText || "",
+        cells[4]?.innerText || ""
+      ]);
+    }
   });
+
+  if (rows.length === 0) {
+    alert("Tidak ada data yang cocok untuk diekspor!");
+    return;
+  }
 
   doc.autoTable({
     head: [['No', 'Nama', 'NIM', 'Kelas', 'Program Studi']],
-    body: rows.map(r => r.slice(0, 5)),
+    body: rows,
     startY: startY,
     theme: 'grid',
     headStyles: {
@@ -416,14 +429,66 @@ function downloadPDF() {
   });
 
   // 🔽 Buat nama file dinamis
-  let filename = "data mahasiswa";
-  if (kelasVal) filename += `_kelas ${kelasVal}`;
-  if (prodiVal) filename += `_prodi ${prodiVal}`;
+  let filename = "data_mahasiswa";
+  if (kelasVal) filename += `_kelas-${kelasVal}`;
+  if (prodiVal) filename += `_prodi-${prodiVal}`;
   if (searchVal) filename += `_search-${searchVal.replace(/\s+/g, "_")}`;
   filename += ".pdf";
 
   doc.save(filename);
 }
+
+// ------------------- PREVIEW SEBELUM EKSPOR PDF -------------------
+const previewModal = document.getElementById("previewModal");
+const closePreview = document.querySelector(".close-preview");
+const confirmExportBtn = document.getElementById("confirmExportBtn");
+const previewTableBody = document.querySelector("#previewTable tbody");
+const previewInfo = document.getElementById("previewInfo");
+
+closePreview.addEventListener("click", () => previewModal.style.display = "none");
+window.addEventListener("click", (e) => {
+  if (e.target === previewModal) previewModal.style.display = "none";
+});
+
+function showPreviewBeforeExport() {
+  previewTableBody.innerHTML = "";
+
+  const searchVal = document.getElementById("searchInput").value.trim();
+  const kelasVal = document.getElementById("filterKelas").value;
+  const prodiVal = document.getElementById("filterProdi").value;
+
+  // Ambil baris yang terlihat (hasil filter/search)
+  const visibleRows = Array.from(document.querySelectorAll("#tbody tr"))
+    .filter(tr => tr.style.display !== "none");
+
+  if (visibleRows.length === 0) {
+    alert("Tidak ada data yang cocok untuk diekspor!");
+    return;
+  }
+
+  // Isi tabel preview
+  visibleRows.forEach((tr, i) => {
+    const row = tr.cloneNode(true);
+    row.querySelector("td:last-child").remove(); // hapus kolom aksi
+    row.querySelector("td:first-child").textContent = i + 1; // nomor urut ulang
+    previewTableBody.appendChild(row);
+  });
+
+  // Info filter & search
+  let infoText = "";
+  if (kelasVal) infoText += `Kelas: ${kelasVal} `;
+  if (prodiVal) infoText += `Prodi: ${prodiVal} `;
+  if (searchVal) infoText += `Pencarian: "${searchVal}"`;
+  previewInfo.textContent = infoText || "Menampilkan semua data.";
+
+  previewModal.style.display = "block";
+}
+
+// Ketika user klik "Konfirmasi Ekspor PDF"
+confirmExportBtn.addEventListener("click", () => {
+  previewModal.style.display = "none";
+  downloadPDF(); // panggil fungsi download PDF yang sudah ada
+});
 
 // ------------------- INIT -------------------
 render(); // Render tabel saat halaman pertama kali dibuka
