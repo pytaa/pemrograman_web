@@ -395,34 +395,3 @@ td button:hover {
   transform: scale(1.08) translateY(-3px); /* Sedikit melayang */
   box-shadow: 0 12px 24px rgba(2, 16, 104, 0.45);
 }
-
-/* Dropdown */
-.export-options {
-  display: none;
-  flex-direction: column;
-  position: absolute;
-  bottom: 70px;
-  right: 0;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  overflow: hidden;
-}
-
-.export-options button {
-  padding: 10px 18px;
-  border: none;
-  background: white;
-  cursor: pointer;
-  text-align: left;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 0.25s;
-  width: 140px;
-}
-
-.export-options button:hover {
-  background: #f0f0f0;
-}
-

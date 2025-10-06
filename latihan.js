@@ -344,60 +344,36 @@ const exportBtn = document.getElementById("exportBtn");
 const exportOptions = document.getElementById("exportOptions");
 
 // ----------------------- EKSPOR DATA -------------------------
-// Toggle tampil/sembunyi menu pilihan format
-exportBtn.addEventListener("click", () => {
-  exportOptions.style.display =
-    exportOptions.style.display === "flex" ? "none" : "flex";
-});
-
-// Event untuk tombol CSV & PDF
-document.querySelectorAll(".export-options button").forEach(btn => {
-  btn.addEventListener("click", function () {
-    const format = this.getAttribute("data-format");
-    exportOptions.style.display = "none"; // tutup menu setelah pilih
-
-    if (format === "csv") {
-      downloadCSV();
-    } else if (format === "pdf") {
-      downloadPDF();
-    }
-  });
-});
-
-// === FUNCTION: Download CSV ===
-function downloadCSV() {
-  let rows = document.querySelectorAll("table tr");
-  let csvContent = "";
-
-  rows.forEach(row => {
-    let cols = row.querySelectorAll("td, th");
-    let rowData = [];
-
-    cols.forEach((col, index) => {
-      // Abaikan kolom terakhir (Aksi)
-      if (index < cols.length - 1) {
-        // Hilangkan koma agar CSV tidak rusak
-        rowData.push(col.innerText.replace(/,/g, ""));
-      }
-    });
-
-    csvContent += rowData.join(",") + "\n";
-  });
-
-  let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  let link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "data_mahasiswa.csv";
-  link.click();
-}
-
 // === FUNCTION: Download PDF ===
+document.getElementById("exportBtn").addEventListener("click", downloadPDF);
+
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("p", "pt", "a4"); // orientasi Portrait, satuan point, ukuran A4
+  const doc = new jsPDF("p", "pt", "a4");
 
+  // 🔽 Ambil nilai search & filter
+  const searchVal = document.getElementById("searchInput").value.trim();
+  const kelasVal = document.getElementById("filterKelas").value;
+  const prodiVal = document.getElementById("filterProdi").value;
+
+  // 🔽 Buat teks judul + subjudul sesuai filter
+  let title = "Daftar Mahasiswa";
+  let subtitle = "";
+
+  if (kelasVal) subtitle += `Kelas: ${kelasVal} `;
+  if (prodiVal) subtitle += `Prodi: ${prodiVal} `;
+  if (searchVal) subtitle += `Pencarian: "${searchVal}"`;
+
+  // 🔽 Tampilkan di PDF
   doc.setFontSize(16);
-  doc.text("Daftar Mahasiswa", 40, 40); // Judul tabel
+  doc.text(title, 40, 40);
+
+  if (subtitle.trim() !== "") {
+    doc.setFontSize(12);
+    doc.text(subtitle.trim(), 40, 60);
+  }
+
+  let startY = subtitle.trim() !== "" ? 80 : 60; // tabel mulai lebih bawah kalau ada subtitle
 
   let rows = [];
   document.querySelectorAll("#tbody tr").forEach(tr => {
@@ -408,37 +384,45 @@ function downloadPDF() {
 
   doc.autoTable({
     head: [['No', 'Nama', 'NIM', 'Kelas', 'Program Studi']],
-    body: rows.map(r => r.slice(0, 5)), // buang kolom aksi
-    startY: 60, // mulai dari bawah judul
-    theme: 'grid', // opsi: 'striped', 'grid', 'plain'
+    body: rows.map(r => r.slice(0, 5)),
+    startY: startY,
+    theme: 'grid',
     headStyles: {
-      fillColor: [0, 128, 0], // header hijau
-      textColor: 255, // teks putih
+      fillColor: [0, 128, 0],
+      textColor: 255,
       fontStyle: 'bold',
       halign: 'center'
     },
     bodyStyles: {
-      halign: 'center', // semua kolom rata tengah
+      halign: 'center',
       valign: 'middle'
     },
     columnStyles: {
-      1: { halign: 'left' }, // kolom Nama rata kiri
-      4: { halign: 'left' }  // kolom Program Studi rata kiri
+      1: { halign: 'left' },
+      4: { halign: 'left' }
     },
     styles: {
       fontSize: 10,
       cellPadding: 6
     },
-    didDrawPage: (data) => {
-      // Footer halaman
+    didDrawPage: () => {
       doc.setFontSize(10);
-      doc.text(`Halaman ${doc.internal.getNumberOfPages()}`, 
-               doc.internal.pageSize.getWidth() - 60, 
-               doc.internal.pageSize.getHeight() - 20);
+      doc.text(
+        `Halaman ${doc.internal.getNumberOfPages()}`,
+        doc.internal.pageSize.getWidth() - 60,
+        doc.internal.pageSize.getHeight() - 20
+      );
     }
   });
 
-  doc.save("data_mahasiswa.pdf");
+  // 🔽 Buat nama file dinamis
+  let filename = "data mahasiswa";
+  if (kelasVal) filename += `_kelas ${kelasVal}`;
+  if (prodiVal) filename += `_prodi ${prodiVal}`;
+  if (searchVal) filename += `_search-${searchVal.replace(/\s+/g, "_")}`;
+  filename += ".pdf";
+
+  doc.save(filename);
 }
 
 // ------------------- INIT -------------------
