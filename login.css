@@ -1,0 +1,91 @@
+/* ====== RESET DAN DASAR ====== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #5a7afc, #4a61f7, #3553d4);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ====== KOTAK LOGIN ====== */
+.login-container {
+  background-color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  width: 380px;
+  padding: 40px 35px;
+  text-align: center;
+}
+
+/* ====== JUDUL ====== */
+h2 {
+  margin-bottom: 32px;
+  color: #222;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* ====== FORM ====== */
+.form-group {
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+input:focus {
+  border-color: #4a61f7;
+  box-shadow: 0 0 6px rgba(74, 97, 247, 0.3);
+  outline: none;
+}
+
+/* ====== TOMBOL ====== */
+button {
+  width: 100%;
+  padding: 12px 0;
+  background-color: #4a61f7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.25s ease, transform 0.15s ease;
+}
+
+button:hover {
+  background-color: #3d52d4;
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* ====== PESAN ERROR ====== */
+.error {
+  color: #e63946;
+  font-size: 14px;
+  margin-top: 10px;
+}
