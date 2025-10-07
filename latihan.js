@@ -204,7 +204,7 @@ function updateFilterOptions() {
   if (prodiSet.includes(selectedProdi)) filterProdi.value = selectedProdi;
 }
 
-// ------------------- UPLOAD CSV -------------------
+// ------------------- IMPOR DATA -------------------
 // Ambil elemen
 const modal = document.getElementById("uploadModal");
 const showBtn = document.getElementById("show-upload");
@@ -228,41 +228,63 @@ window.addEventListener("click", (event) => {
 });
 
 // Upload CSV
+// Upload CSV atau Excel
+// ------------------- IMPORT CSV / EXCEL -------------------
 document.getElementById("btn-upload").addEventListener("click", () => {
   const fileInput = document.getElementById("csvFile");
   const file = fileInput.files[0];
 
   if (!file) {
-    alert("Pilih file CSV terlebih dahulu!");
+    alert("Pilih file terlebih dahulu!");
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const text = e.target.result;
-    importCSV(text);
-    modal.style.display = "none"; // Tutup modal setelah upload
-  };
-  reader.readAsText(file);
+  const fileName = file.name.toLowerCase();
+
+  // Jika CSV
+  if (fileName.endsWith(".csv")) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      importCSV(e.target.result);
+      modal.style.display = "none";
+    };
+    reader.readAsText(file);
+  }
+  // Jika Excel (xls / xlsx)
+  else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const dataExcel = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(dataExcel, { type: "array" });
+
+      // Ambil sheet pertama
+      const firstSheet = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheet];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      importExcel(jsonData);
+      modal.style.display = "none";
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    alert("Format file tidak didukung! Gunakan CSV, XLS, atau XLSX.");
+  }
 });
 
-// Parsing CSV → push ke array data → simpan localStorage → render
+
+// 🔹 Fungsi Import CSV
 function importCSV(text) {
   const rows = text.split("\n").map(r => r.trim()).filter(r => r.length > 0);
 
   rows.forEach((row, index) => {
-    if (index === 0) return; // skip header (baris pertama)
-
+    if (index === 0) return; // skip header
     const cols = row.split(",");
-
-    if (cols.length < 4) return; // validasi minimal 4 kolom
+    if (cols.length < 4) return;
 
     const [nama, nim, kelas, prodi] = cols;
 
-    // Cek duplikat NIM biar tidak dobel
     if (data.some(m => m.nim === nim.trim())) return;
 
-    // Masukkan ke array dengan autoId
     data.push({
       id: autoId++,
       nama: nama.trim(),
@@ -272,9 +294,34 @@ function importCSV(text) {
     });
   });
 
-  saveData(data); // Simpan ke localStorage
-  render();       // Render ulang tabel
+  saveData(data);
+  render();
 }
+
+
+// 🔹 Fungsi Import Excel
+function importExcel(rows) {
+  rows.forEach((row, index) => {
+    if (index === 0) return; // skip header
+
+    const [nama, nim, kelas, prodi] = row;
+    if (!nama || !nim) return;
+
+    if (data.some(m => m.nim === String(nim).trim())) return;
+
+    data.push({
+      id: autoId++,
+      nama: String(nama).trim(),
+      nim: String(nim).trim(),
+      kelas: String(kelas || "").trim(),
+      prodi: String(prodi || "").trim()
+    });
+  });
+
+  saveData(data);
+  render();
+}
+
 
 // --------------------- FILTERING AND SORTING -----------------------
 // Sort berdasarkan Nama atau NIM

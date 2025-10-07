@@ -61,8 +61,8 @@
         <div class="modal-content">
           <span class="close">&times;</span>
           <h3>Unggah Data CSV</h3>
-          <label for="csvFile">Pilih File CSV:</label>
-          <input type="file" id="csvFile" accept=".csv">
+          <label for="csvFile">Pilih File (CSV / XLS / XLSX):</label>
+          <input type="file" id="csvFile" accept=".csv, .xls, .xlsx">
           <button type="button" id="btn-upload">Unggah</button>
         </div>
       </div>
@@ -166,5 +166,9 @@
 
   <!-- Attach JavaScript -->
   <script src="latihan.js"></script>
+
+  <!-- Import XLS -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 </body>
 </html>
