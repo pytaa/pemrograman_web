@@ -7,7 +7,7 @@
 
 body {
   font-family: "Poppins", sans-serif;
-  background: linear-gradient(135deg, #5a7afc, #4a61f7, #3553d4);
+  background: linear-gradient(135deg, #021068, #0634ff);
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -27,7 +27,7 @@ body {
 /* ====== JUDUL ====== */
 h2 {
   margin-bottom: 32px;
-  color: #222;
+  color: #021068;
   font-size: 22px;
   font-weight: 600;
 }
@@ -64,7 +64,7 @@ input:focus {
 button {
   width: 100%;
   padding: 12px 0;
-  background-color: #4a61f7;
+  background-color: #1436d2;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -81,6 +81,12 @@ button:hover {
 
 button:active {
   transform: translateY(1px);
+}
+
+#guide {
+  font-size: small;
+  color: grey;
+  padding: 10px 0;
 }
 
 /* ====== PESAN ERROR ====== */
