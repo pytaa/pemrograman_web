@@ -538,5 +538,16 @@ confirmExportBtn.addEventListener("click", () => {
   downloadPDF();
 });
 
+// ----------------- PROTEKSI LOGIN -----------------
+if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "login.html";
+}
+
+// ----------------- LOGOUT -----------------
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  localStorage.removeItem("isLoggedIn");
+  window.location.href = "login.html";
+});
+
 // ------------------- INIT -------------------
 render(); // Render tabel saat halaman pertama kali dibuka
