@@ -16,74 +16,75 @@
     <div>
       <!-- FORM INPUT MAHASISWA -->
       <form id="form-mahasiswa" autocomplete="off">
-
-        <!-- Input Nama Mahasiswa -->
-        <div class="formInput">
-          <label for="nama">Nama:</label>
-          <input type="text" id="nama" required placeholder="Masukkan nama">
-        </div>
-
-        <!-- Input NIM Mahasiswa -->
-        <div class="formInput">
-          <label for="nim">NIM:</label>
-          <input type="text" id="nim" required placeholder="Masukkan NIM">
-        </div>
-
-        <!-- Input Kelas Mahasiswa -->
-        <div class="formInput">
-          <label for="kelas">Kelas:</label>
-          <input type="text" id="kelas" required placeholder="Masukkan Kelas">
-        </div>
-
-        <div class="formInput">
-          <label for="prodi">Program Studi:</label>
-          <select id="prodi" required>
-                <option value="" disabled selected>Pilih Program Studi</option>
-                <option value="Teknik Informatika">Teknik Informatika</option>
-                <option value="Teknik Industri">Teknik Industri</option>
-                <option value="Teknik Arsitektur">Teknik Arsitektur</option>
-                <option value="Manajemen">Manajemen</option>
-                <option value="Sistem Informasi">Sistem Informasi</option>
-            </select>
-        </div>
-
-        <div class="formInput">
-            <label for="angkatan">Angkatan (Tahun):</label>
-            <div class="counter-input">
-                <button type="button" id="angkatan-down" style="padding: 5px 10px; font-size: 16px;">-</button>
-                <input 
-                    type="number" 
-                    id="angkatan" 
-                    required 
-                    placeholder="2000 - 2025"
-                    min="2000" 
-                    max="2025" 
-                    value="2025" 
-                    style="text-align: center; width: 100px;"
-                >
-                <button type="button" id="angkatan-up" style="padding: 5px 10px; font-size: 16px;">+</button>
-            </div>
-        </div>
-
-        <div class="formInput">
-            <label for="email">Email:</label>
-            <input type="email" id="email" required placeholder="example@domain.com">
-        </div>
-
-        <div class="formInput">
-            <label for="ipk">IPK:</label>
-            <input type="text" id="ipk" required placeholder="Gunakan titik (mis. 3.50)" pattern="^\d{1}\.\d{2}$|^[0-3]\.\d{2}$|^4\.00$" title="Format IPK harus X.XX (misal 3.50) dan maksimal 4.00">
-        </div>
-        
-        <div class="formInput">
-            <label for="catatan">Catatan (Opsional):</label>
-            <textarea id="catatan" rows="3" placeholder="Tambahkan catatan..."></textarea>
-        </div>
-
-        <div class="formInput">
-            <label for="gambar">Foto Profil (Max 10MB, JPG/PNG):</label>
-            <input type="file" id="gambar" accept=".jpg, .jpeg, .png">
-            <p id="gambar-preview" style="margin-top: 5px; font-style: italic; font-size: 12px;"></p>
+        <div class="form-grid">  
+          <!-- Input Nama Mahasiswa -->
+          <div class="formInput">
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" required placeholder="Masukkan nama">
+          </div>
+  
+          <!-- Input NIM Mahasiswa -->
+          <div class="formInput">
+            <label for="nim">NIM:</label>
+            <input type="text" id="nim" required placeholder="Masukkan NIM">
+          </div>
+  
+          <!-- Input Kelas Mahasiswa -->
+          <div class="formInput">
+            <label for="kelas">Kelas:</label>
+            <input type="text" id="kelas" required placeholder="Masukkan Kelas">
+          </div>
+  
+          <div class="formInput">
+            <label for="prodi">Program Studi:</label>
+            <select id="prodi" required>
+                  <option value="" disabled selected>Pilih Program Studi</option>
+                  <option value="Teknik Informatika">Teknik Informatika</option>
+                  <option value="Teknik Industri">Teknik Industri</option>
+                  <option value="Teknik Arsitektur">Teknik Arsitektur</option>
+                  <option value="Manajemen">Manajemen</option>
+                  <option value="Sistem Informasi">Sistem Informasi</option>
+              </select>
+          </div>
+  
+          <div class="formInput">
+              <label for="angkatan">Angkatan (Tahun):</label>
+              <div class="counter-input">
+                  <button type="button" id="angkatan-down" style="padding: 5px 10px; font-size: 16px;">-</button>
+                  <input 
+                      type="number" 
+                      id="angkatan" 
+                      required 
+                      placeholder="2000 - 2025"
+                      min="2000" 
+                      max="2025" 
+                      value="2025" 
+                      style="text-align: center; width: 100px;"
+                  >
+                  <button type="button" id="angkatan-up" style="padding: 5px 10px; font-size: 16px;">+</button>
+              </div>
+          </div>
+  
+          <div class="formInput">
+              <label for="email">Email:</label>
+              <input type="email" id="email" required placeholder="example@domain.com">
+          </div>
+  
+          <div class="formInput">
+              <label for="ipk">IPK:</label>
+              <input type="text" id="ipk" required placeholder="Gunakan titik (mis. 3.50)" pattern="^\d{1}\.\d{2}$|^[0-3]\.\d{2}$|^4\.00$" title="Format IPK harus X.XX (misal 3.50) dan maksimal 4.00">
+          </div>
+          
+          <div class="formInput">
+              <label for="catatan">Catatan (Opsional):</label>
+              <textarea id="catatan" rows="3" placeholder="Tambahkan catatan..."></textarea>
+          </div>
+  
+          <div class="formInput">
+              <label for="gambar">Foto Profil (Max 10MB, JPG/PNG):</label>
+              <input type="file" id="gambar" accept=".jpg, .jpeg, .png">
+              <p id="gambar-preview" style="margin-top: 5px; font-style: italic; font-size: 12px;"></p>
+          </div>
         </div>
 
         <!-- Hidden input untuk ID mahasiswa saat edit -->
@@ -102,14 +103,14 @@
       <!-- Tombol Awal -->
       <div class="upload-section">
         <p>Atau</p>
-        <button type="button" id="show-upload">Unggah Data CSV</button>
+        <button type="button" id="show-upload">Unggah Data</button>
       </div>
 
       <!-- Popup Modal -->
       <div id="uploadModal" class="modal">
         <div class="modal-content">
           <span class="close">&times;</span>
-          <h3>Unggah Data CSV</h3>
+          <h3>Unggah Data</h3>
           <label for="csvFile">Pilih File (CSV / XLS / XLSX):</label>
           <input type="file" id="csvFile" accept=".csv, .xls, .xlsx">
           <button type="button" id="btn-upload">Unggah</button>

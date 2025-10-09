@@ -4,14 +4,12 @@
   box-sizing: border-box;
 }
 
-/* Pastikan body full */
 body {
   margin: 0;
   background-color: #e8faff;
   font-family: Arial, sans-serif;
 }
 
-/* === HEADER MODERN === */
 .header {
   width: 100%;
   background: linear-gradient(135deg, #021068, #0634ff);
@@ -41,7 +39,6 @@ body {
   font-size: 24px;
 }
 
-/* === Tombol Logout === */
 .header .logout-btn {
   background: rgba(255, 255, 255, 0.95);
   color: #4f6ef7;
@@ -81,7 +78,6 @@ p {
   display: flex;
 }
 
-/*Container bagian input*/
 .container {
   width: 100%;
   padding: 20px;
@@ -90,19 +86,43 @@ p {
   justify-content: center;
 }
 
+#form-mahasiswa {
+  background-color: white;
+  width: 90%;
+  max-width: 1100px;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 25px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  margin: 0 auto; /
+}
 
-/*Pengisian data manual*/
-#form-mahasiswa select {
-  width: 96%; /* Samakan dengan input text */
+.form-grid {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 20px;       
+    margin-bottom: 20px;
+    align-items: flex-start;
+}
+
+.formInput {
+    flex: 1 1 calc(33.33% - 20px); 
+    margin-bottom: 0 !important; 
+}
+
+.formInput input[type="text"],
+.formInput input[type="email"],
+.formInput input[type="number"],
+.formInput input[type="file"],
+.formInput select,
+.formInput textarea {
+  width: 96%;
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
   transition: 0.3s ease;
-  background-color: white; /* Pastikan background putih */
-}
-
-.formInput {
-  margin-bottom: 15px;
+  background-color: white;
 }
 
 label {
@@ -110,14 +130,6 @@ label {
   margin-bottom: 6px;
   font-weight: bold;
   font-size:medium;
-}
-
-input[type="text"] {
-  width: 96%;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: 0.3s ease;
 }
 
 /*Highlight input yang dipilih*/
@@ -133,18 +145,23 @@ input[type="text"]:focus{
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  resize: vertical; /* Biarkan user mengubah tinggi secara vertikal */
+  resize: vertical; 
   transition: 0.3s ease;
 }
 
-#catatan:focus, #form-mahasiswa select:focus {
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="file"]:focus, /* Input file */
+#form-mahasiswa select:focus,
+#catatan:focus,
+#ipk:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
 .counter-input input[type="number"] {
-  /* ... (style lainnya) ... */
   width: 100px !important; 
   text-align: center;
   -moz-appearance: textfield; /* Sembunyikan panah default di Firefox */
@@ -158,7 +175,7 @@ input[type="text"]:focus{
 }
 
 .counter-input button {
-  padding: 5px 10px;
+  padding: 8px 10px;
   background-color: #f0f0f0;
   color: #333;
   border: 1px solid #ccc;
@@ -201,7 +218,6 @@ button:hover {
   opacity: 0.9;
 }
 
-/* Upload Section */
 .upload-section {
   margin: 15px 0;
   text-align: center;
@@ -212,7 +228,6 @@ button:hover {
   align-items: center;
 }
 
-/* Input File */
 .upload-section input[type="file"] {
   padding: 6px;
   border: 1px solid #ccc;
@@ -222,7 +237,6 @@ button:hover {
   background-color: #f9f9f9;
 }
 
-/* Tombol Upload */
 .upload-section button {
   padding: 10px 25px; 
   border: none;
@@ -240,7 +254,6 @@ button:hover {
   transform: scale(1.05); 
 }
 
-/* Modal (background hitam transparan) */
 .modal {
   display: none;
   position: fixed;
@@ -253,7 +266,6 @@ button:hover {
   background-color: rgba(0,0,0,0.5);
 }
 
-/* Konten popup */
 .modal-content {
   background-color: #fff;
   margin: 10% auto;
@@ -265,7 +277,6 @@ button:hover {
   box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
 }
 
-/* Input File */
 .modal-content input[type="file"] {
   padding: 6px;
   margin: 10px 0;
@@ -276,7 +287,6 @@ button:hover {
   background-color: #f9f9f9;
 }
 
-/* Tombol Upload */
 .modal-content button {
   padding: 6px 15px;
   border: none;
@@ -318,7 +328,6 @@ button:hover {
   box-shadow: none;
 }
 
-/* Tombol Close (X) */
 .close {
   color: #aaa;
   float: right;
@@ -363,7 +372,6 @@ button:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Container untuk filter + sort */
 .filter-sort-wrapper {
   display: flex;
   justify-content: center;
@@ -372,10 +380,9 @@ button:hover {
   margin: 15px 0;
 }
 
-/* Sesuaikan style filter & sort agar lebih kompak */
 .filter,
 .sort-section {
-  margin: 0; /* hilangkan margin biar rata */
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -384,13 +391,13 @@ button:hover {
 .filter select,
 .sort-section select {
   padding: 8px 15px;
-  border-radius: 20px; /* Sama untuk keduanya */
+  border-radius: 20px; 
   border: 1px solid #ccc;
   font-size: 14px;
   cursor: pointer;
   background-color: #ffffff;
   transition: border-color 0.3s, background-color 0.3s;
-  min-width: 140px; /* Biar seragam */
+  min-width: 140px;
 }
 
 .filter select:hover,
@@ -399,7 +406,6 @@ button:hover {
   background-color: #f1f1f1;
 }
 
-/* Label Sort agar sejajar rapi */
 .sort-section label {
   font-size: 14px;
   font-weight: bold;
@@ -481,25 +487,24 @@ td button:hover {
 #exportBtn {
   padding: 15px 28px;
   border: none;
-  border-radius: 40px;       /* Lebih bulat */
+  border-radius: 40px;   
   background: linear-gradient(135deg, #021068, #0634ff);
   color: white;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(2, 16, 104, 0.35); /* Shadow lebih tebal */
-  transition: all 0.25s ease;
+  box-shadow: 0 8px 20px rgba(2, 16, 104, 0.35);
 }
 
 #exportBtn:hover {
   background: linear-gradient(135deg, #0320a8, #365cff);
-  transform: scale(1.08) translateY(-3px); /* Sedikit melayang */
+  transform: scale(1.08) translateY(-3px); 
   box-shadow: 0 12px 24px rgba(2, 16, 104, 0.45);
 }
 
 /* ------------------- MODAL PREVIEW PDF ------------------- */
 .modal {
-  display: none; /* disembunyikan secara default */
+  display: none; 
   position: fixed;
   z-index: 999;
   left: 0;
@@ -507,17 +512,15 @@ td button:hover {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.5); /* latar belakang gelap transparan */
+  background-color: rgba(0, 0, 0, 0.5); 
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Animasi muncul */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Isi kotak modal */
 .modal-content{
   background-color: #ffffff;
   margin: 5% auto;
@@ -529,13 +532,11 @@ td button:hover {
   animation: slideUp 0.35s ease-out;
 }
 
-/* Animasi naik */
 @keyframes slideUp {
   from { transform: translateY(40px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Tombol close (X) */
 .close-preview {
   color: #888;
   font-size: 24px;
@@ -549,14 +550,12 @@ td button:hover {
   color: #000;
 }
 
-/* Judul modal */
 .modal-content h2 {
   text-align: center;
   color: #021068;
   margin-bottom: 10px;
 }
 
-/* Info filter/search */
 #previewInfo {
   text-align: center;
   color: #555;
@@ -564,7 +563,6 @@ td button:hover {
   font-style: italic;
 }
 
-/* Tabel preview */
 #previewTable {
   width: 100%;
   border-collapse: collapse;
@@ -592,12 +590,10 @@ td button:hover {
   background-color: #f1f1f1;
 }
 
-/* Tombol konfirmasi ekspor */
-/* Tombol konfirmasi ekspor (diseragamkan dengan tombol export utama) */
 #confirmExportBtn {
   padding: 15px 28px;
   border: none;
-  border-radius: 40px; /* sama dengan exportBtn */
+  border-radius: 40px; 
   background: linear-gradient(135deg, #021068, #0634ff);
   color: white;
   font-size: 16px;
@@ -606,7 +602,7 @@ td button:hover {
   box-shadow: 0 8px 20px rgba(2, 16, 104, 0.35);
   transition: all 0.25s ease;
   display: block;
-  margin: 25px auto 5px auto; /* posisikan di tengah modal */
+  margin: 25px auto 5px auto; 
 }
 
 #confirmExportBtn:hover {
