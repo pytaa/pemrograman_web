@@ -1,9 +1,64 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
+/* Pastikan body full */
 body {
+  margin: 0;
   background-color: #e8faff;
   font-family: Arial, sans-serif;
+}
+
+/* === HEADER MODERN === */
+.header {
+  width: 100%;
+  background: linear-gradient(135deg, #021068, #0634ff);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 50px;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 600;
   margin: 0;
-  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header h1::before {
+  font-size: 24px;
+}
+
+/* === Tombol Logout === */
+.header .logout-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #4f6ef7;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.25s ease-in-out;
+}
+
+.header .logout-btn:hover {
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
 h1 {
@@ -37,13 +92,13 @@ p {
 
 
 /*Pengisian data manual*/
-#form-mahasiswa {
-  background-color: white;
-  width: 400px; 
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  padding: 40px 25px;
-  margin: 0 auto;
+#form-mahasiswa select {
+  width: 96%; /* Samakan dengan input text */
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: 0.3s ease;
+  background-color: white; /* Pastikan background putih */
 }
 
 .formInput {
@@ -70,6 +125,50 @@ input[type="text"]:focus{
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Gaya untuk textarea Catatan */
+#catatan {
+  width: 96%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical; /* Biarkan user mengubah tinggi secara vertikal */
+  transition: 0.3s ease;
+}
+
+#catatan:focus, #form-mahasiswa select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.counter-input input[type="number"] {
+  /* ... (style lainnya) ... */
+  width: 100px !important; 
+  text-align: center;
+  -moz-appearance: textfield; /* Sembunyikan panah default di Firefox */
+  appearance: none;          /* Standar W3C untuk compatibility */
+}
+
+.counter-input input[type="number"]::-webkit-outer-spin-button,
+.counter-input input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Sembunyikan panah default di Chrome/Safari */
+  margin: 0;
+}
+
+.counter-input button {
+  padding: 5px 10px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  font-weight: normal;
+  transition: 0.2s;
+}
+
+.counter-input button:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.05);
 }
 
 .buttonform {
@@ -108,6 +207,7 @@ button:hover {
   text-align: center;
   display: flex;
   justify-content: center;
+  flex-direction: column; 
   gap: 10px;
   align-items: center;
 }
@@ -307,22 +407,19 @@ button:hover {
 }
 
 .table-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%; 
-    margin: 0 auto;
-    padding: 10px;
-  }
+  width: 95%; 
+  margin: 0 auto; 
+  padding: 10px;
+  overflow-x: auto; 
+}
 
 table {
     border-collapse: collapse;
     background: white;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     border-radius: 12px;
-    overflow: hidden;
-    table-layout: auto;
-    width: 80%;
+    table-layout: fixed;
+    min-width: 1200px;
     margin: 0 auto;
 }
 

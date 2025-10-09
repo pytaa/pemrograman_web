@@ -6,11 +6,14 @@
   <link rel="stylesheet" href="latihan-html.css">
 </head>
 <body>
+  <!-- HEADER -->
+  <header class="header">
+    <h1>Data Mahasiswa — CRUD Sederhana</h1>
+    <button id="logoutBtn">Logout</button>
+  </header>
+  
   <section class="container">
     <div>
-      <!-- Judul utama halaman -->
-      <h1>Data Mahasiswa — CRUD Sederhana</h1>
-
       <!-- FORM INPUT MAHASISWA -->
       <form id="form-mahasiswa" autocomplete="off">
 
@@ -32,10 +35,55 @@
           <input type="text" id="kelas" required placeholder="Masukkan Kelas">
         </div>
 
-        <!-- Input Prodi Mahasiswa -->
         <div class="formInput">
-          <label for="prodi">Program Studi:</label>
-          <input type="text" id="prodi" required placeholder="Masukkan Program Studi">
+          <label for="prodi">Program Studi:</label>
+          <select id="prodi" required>
+                <option value="" disabled selected>Pilih Program Studi</option>
+                <option value="Teknik Informatika">Teknik Informatika</option>
+                <option value="Teknik Industri">Teknik Industri</option>
+                <option value="Teknik Arsitektur">Teknik Arsitektur</option>
+                <option value="Manajemen">Manajemen</option>
+                <option value="Sistem Informasi">Sistem Informasi</option>
+            </select>
+        </div>
+
+        <div class="formInput">
+            <label for="angkatan">Angkatan (Tahun):</label>
+            <div class="counter-input">
+                <button type="button" id="angkatan-down" style="padding: 5px 10px; font-size: 16px;">-</button>
+                <input 
+                    type="number" 
+                    id="angkatan" 
+                    required 
+                    placeholder="2000 - 2025"
+                    min="2000" 
+                    max="2025" 
+                    value="2025" 
+                    style="text-align: center; width: 100px;"
+                >
+                <button type="button" id="angkatan-up" style="padding: 5px 10px; font-size: 16px;">+</button>
+            </div>
+        </div>
+
+        <div class="formInput">
+            <label for="email">Email:</label>
+            <input type="email" id="email" required placeholder="example@domain.com">
+        </div>
+
+        <div class="formInput">
+            <label for="ipk">IPK:</label>
+            <input type="text" id="ipk" required placeholder="Gunakan titik (mis. 3.50)" pattern="^\d{1}\.\d{2}$|^[0-3]\.\d{2}$|^4\.00$" title="Format IPK harus X.XX (misal 3.50) dan maksimal 4.00">
+        </div>
+        
+        <div class="formInput">
+            <label for="catatan">Catatan (Opsional):</label>
+            <textarea id="catatan" rows="3" placeholder="Tambahkan catatan..."></textarea>
+        </div>
+
+        <div class="formInput">
+            <label for="gambar">Foto Profil (Max 10MB, JPG/PNG):</label>
+            <input type="file" id="gambar" accept=".jpg, .jpeg, .png">
+            <p id="gambar-preview" style="margin-top: 5px; font-style: italic; font-size: 12px;"></p>
         </div>
 
         <!-- Hidden input untuk ID mahasiswa saat edit -->
@@ -48,11 +96,12 @@
         </div>
       </form>
 
-      <p>Atau</p>
+      
 
       <!------------------- Upload CSV ------------------>
       <!-- Tombol Awal -->
       <div class="upload-section">
+        <p>Atau</p>
         <button type="button" id="show-upload">Unggah Data CSV</button>
       </div>
 
@@ -110,22 +159,25 @@
 
       <!-- Tabel Daftar Mahasiswa -->
       <div class="table-wrapper">
-        <table border="1" cellpadding="5">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama</th>
-              <th>NIM</th>
-              <th>Kelas</th>
-              <th>Program Studi</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="tbody">
-            <!-- Baris tabel akan dirender melalui JavaScript -->
-          </tbody>
-        </table>
-      </div>
+        <table border="1" cellpadding="5">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>NIM</th>
+              <th>Kelas</th>
+              <th>Program Studi</th>
+              <th>Angkatan</th> 
+              <th>Email</th> 
+              <th>IPK</th> 
+              <th>Gambar</th> 
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+                      </tbody>
+        </table>
+      </div>
 
       <!-- Tombol Ekspor (Floating) -->
       <div class="export-section">
@@ -140,17 +192,20 @@
           <p id="previewInfo" style="font-style: italic; color: #444;"></p>
           <div style="max-height: 400px; overflow:auto;">
             <table id="previewTable">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Nama</th>
-                  <th>NIM</th>
-                  <th>Kelas</th>
-                  <th>Program Studi</th>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>NIM</th>
+                  <th>Kelas</th>
+                  <th>Program Studi</th>
+                    <th>Angkatan</th> 
+                    <th>Email</th> 
+                    <th>IPK</th>                 
                 </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
           <div style="text-align:right; margin-top:10px;">
             <button id="confirmExportBtn">Konfirmasi Ekspor PDF</button>

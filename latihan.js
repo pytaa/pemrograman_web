@@ -1,120 +1,227 @@
-    // ------------------- PERSISTENSI DATA -------------------
-    const STORAGE_KEY = "crud_mahasiswa"; // Key localStorage
+// ------------------- PERSISTENSI DATA -------------------
+const STORAGE_KEY = "crud_mahasiswa"; // Key localStorage
 
-    // Load data dari localStorage, jika kosong kembalikan array kosong
-    const loadData = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+// Load data dari localStorage, jika kosong kembalikan array kosong
+const loadData = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 
-    // Simpan array data ke localStorage
-    const saveData = (list) => localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+// Simpan array data ke localStorage
+const saveData = (list) => localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+
+
+// ------------------- STATE -------------------
+let data = loadData(); // Array data mahasiswa
+let autoId = data.reduce((m, o) => Math.max(m, o.id), 0) + 1; // Auto-increment ID
+
+// ------------------- ELEMENT HTML -------------------
+const form = document.getElementById("form-mahasiswa");
+const elId = document.getElementById("id");
+const elNama = document.getElementById("nama");
+const elNim = document.getElementById("nim");
+const elKelas = document.getElementById("kelas");
+const elProdi = document.getElementById("prodi");
+const elAngkatan = document.getElementById("angkatan"); 
+const elEmail = document.getElementById("email");       
+const elIPK = document.getElementById("ipk");           
+const elCatatan = document.getElementById("catatan");   
+const elGambar = document.getElementById("gambar");     
+const tbody = document.getElementById("tbody");
+const btnReset = document.getElementById("btn-reset");
+
+// ------------------- FUNGSI RENDER -------------------
+function render() {
+  if (!Array.isArray(data)) data = [];
+  tbody.innerHTML = ""; // Kosongkan tabel sebelum render ulang
+  data.forEach((row, idx) => {
+    const imgPreview = row.gambar ? `<img src="${row.gambar}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">` : '-';
     
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td>${row.nama}</td>
+      <td>${row.nim}</td>
+      <td>${row.kelas}</td>
+      <td>${row.prodi}</td>
+      <td>${row.angkatan || '-'}</td>  <td>${row.email || '-'}</td>    <td>${row.ipk || '-'}</td>      <td>${imgPreview}</td>         <td>
+        <button type="button" data-edit="${row.id}">Edit</button>
+        <button type="button" data-del="${row.id}">Hapus</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 
-    // ------------------- STATE -------------------
-    let data = loadData(); // Array data mahasiswa
-    let autoId = data.reduce((m, o) => Math.max(m, o.id), 0) + 1; // Auto-increment ID
+  updateFilterOptions();
+}
 
-    // ------------------- ELEMENT HTML -------------------
-    const form = document.getElementById("form-mahasiswa");
-    const elId = document.getElementById("id");
-    const elNama = document.getElementById("nama");
-    const elNim = document.getElementById("nim");
-    const elKelas = document.getElementById("kelas");
-    const elProdi = document.getElementById("prodi");
-    const tbody = document.getElementById("tbody");
-    const btnReset = document.getElementById("btn-reset");
-
-    // ------------------- FUNGSI RENDER -------------------
-    function render() {
-      if (!Array.isArray(data)) data = [];
-      tbody.innerHTML = ""; // Kosongkan tabel sebelum render ulang
-      data.forEach((row, idx) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${idx + 1}</td>
-          <td>${row.nama}</td>
-          <td>${row.nim}</td>
-          <td>${row.kelas}</td>
-          <td>${row.prodi}</td>
-          <td>
-            <button type="button" data-edit="${row.id}">Edit</button>
-            <button type="button" data-del="${row.id}">Hapus</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      updateFilterOptions();
+// ------------------- FUNGSI VALIDASI (BARU) -------------------
+function validateForm(nama, nim, kelas, prodi, angkatan, email, ipk) {
+    if (!nama || !nim || !kelas || !prodi || !angkatan || !email || !ipk) {
+        alert("Nama, NIM, Kelas, Program Studi, Angkatan, Email, dan IPK wajib diisi.");
+        return false;
     }
 
-    // ------------------- FORM SUBMIT (CREATE / UPDATE) -------------------
-    form.addEventListener("submit", (e) => {
-      e.preventDefault(); // Mencegah reload halaman
+    // Validasi Email harus ada @
+    if (!email.includes('@')) {
+        alert("Format Email tidak valid. Harus mengandung simbol '@'.");
+        return false;
+    }
 
-      const idVal = elId.value.trim();
-      const nama = elNama.value.trim();
-      const nim = elNim.value.trim();
-      const kelas = elKelas.value.trim();
-      const prodi = elProdi.value.trim();
-
-      if (!nama || !nim) return alert("Nama, NIM, Kelas, dan Program Studi wajib diisi.");
-
-      if (idVal) {
-        // UPDATE DATA
-        const idNum = Number(idVal);
-        const idx = data.findIndex(x => x.id === idNum);
-        if (idx >= 0) {
-          data[idx].nama = nama;
-          data[idx].nim = nim;
-          data[idx].kelas = kelas;
-          data[idx].prodi = prodi;
-        }
-      } else {
-        // CREATE DATA BARU
-        data.push({ id: autoId++, nama, nim, kelas, prodi });
-      }
-
-      saveData(data); // Simpan data
-      render();       // Render ulang tabel
-      form.reset();   // Reset form
-      elId.value = ""; 
-      elNama.focus(); // Fokus ke input nama
-    });
-
-    // ------------------- RESET FORM -------------------
-    btnReset.addEventListener("click", () => {
-      form.reset();
-      elId.value = "";
-      elNama.focus();
-    });
-
-    // ------------------- HANDLER TOMBOL EDIT / HAPUS -------------------
-    tbody.addEventListener("click", (e) => {
-      const editId = e.target.getAttribute("data-edit");
-      const delId = e.target.getAttribute("data-del");
-
-      if (editId) {
-        // EDIT DATA
-        const item = data.find(x => x.id === Number(editId));
-        if (item) {
-          elId.value = item.id;
-          elNama.value = item.nama;
-          elNim.value = item.nim;
-          elKelas.value = item.kelas;
-          elProdi.value = item.prodi;
-          elNama.focus();
-        }
-      }
-
-      if (delId) {
-        // DELETE DATA
-        const idNum = Number(delId);
-        if (confirm("Yakin hapus data ini?")) {
-          data = data.filter(x => x.id !== idNum);
-          saveData(data);
-          render();
-        }
-      }
-    });
+    // Validasi IPK menggunakan titik (max 4.00)
+    const ipkRegex = /^(?:[0-3]\.\d{2}|4\.00)$/;
+    if (!ipkRegex.test(ipk)) {
+        alert("Format IPK tidak valid. Gunakan format X.XX (misal 3.50), maksimal 4.00.");
+        return false;
+    }
     
+    // Validasi Angkatan
+    const angkatanNum = Number(angkatan);
+    if (isNaN(angkatanNum) || angkatanNum < 2000 || angkatanNum > 2025) {
+        alert("Angkatan harus berupa tahun antara 2000 hingga 2025.");
+        return false;
+    }
+    
+    return true;
+}
+
+
+// ------------------- FORM SUBMIT (CREATE / UPDATE) -------------------
+form.addEventListener("submit", async (e) => { // UBAH ke async untuk menunggu FileReader
+  e.preventDefault();
+
+  const idVal = elId.value.trim();
+  const nama = elNama.value.trim();
+  const nim = elNim.value.trim();
+  const kelas = elKelas.value.trim();
+  const prodi = elProdi.value; // Ambil value dari select
+  const angkatan = elAngkatan.value.trim(); // BARU
+  const email = elEmail.value.trim();     // BARU
+  const ipk = elIPK.value.trim();         // BARU
+  const catatan = elCatatan.value.trim(); // BARU
+  const file = elGambar.files[0];         // BARU
+
+  if (!validateForm(nama, nim, kelas, prodi, angkatan, email, ipk)) return;
+  
+  // --- Proses Upload Gambar (BARU) ---
+  let gambarBase64 = idVal ? (data.find(x => x.id === Number(idVal))?.gambar || '') : '';
+
+  if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          alert("Ukuran gambar maksimal 10MB!");
+          return;
+      }
+      if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+          alert("Format gambar harus JPG, JPEG, atau PNG!");
+          return;
+      }
+
+      // Konversi gambar ke Base64 (untuk disimpan di localStorage)
+      gambarBase64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => resolve('');
+          reader.readAsDataURL(file);
+      });
+  }
+  // --- Akhir Proses Upload Gambar ---
+
+  if (idVal) {
+    // UPDATE DATA
+    const idNum = Number(idVal);
+    const idx = data.findIndex(x => x.id === idNum);
+    if (idx >= 0) {
+      data[idx].nama = nama;
+      data[idx].nim = nim;
+      data[idx].kelas = kelas;
+      data[idx].prodi = prodi;
+      data[idx].angkatan = angkatan;  // UPDATE BARU
+      data[idx].email = email;        // UPDATE BARU
+      data[idx].ipk = ipk;            // UPDATE BARU
+      data[idx].catatan = catatan;    // UPDATE BARU
+      data[idx].gambar = gambarBase64;// UPDATE BARU
+    }
+  } else {
+    // CREATE DATA BARU
+    data.push({ 
+        id: autoId++, 
+        nama, nim, kelas, prodi, 
+        angkatan, email, ipk, catatan, gambar: gambarBase64 
+    });
+  }
+
+  saveData(data);
+  render();
+  form.reset();
+  elId.value = ""; 
+  elProdi.value = ""; // Reset dropdown prodi
+  elAngkatan.value = "2025"; // Set default angkatan
+  elNama.focus();
+  document.getElementById("gambar-preview").textContent = ''; // Reset preview
+});
+
+// ------------------- RESET FORM -------------------
+btnReset.addEventListener("click", () => {
+  form.reset();
+  elId.value = "";
+  elProdi.value = ""; // Reset dropdown prodi
+  elAngkatan.value = "2025"; // Set default angkatan
+  elNama.focus();
+  document.getElementById("gambar-preview").textContent = ''; // Reset preview
+});
+
+// ------------------- HANDLER TOMBOL EDIT / HAPUS -------------------
+tbody.addEventListener("click", (e) => {
+  const editId = e.target.getAttribute("data-edit");
+  const delId = e.target.getAttribute("data-del");
+
+  if (editId) {
+    // EDIT DATA
+    const item = data.find(x => x.id === Number(editId));
+    if (item) {
+      elId.value = item.id;
+      elNama.value = item.nama;
+      elNim.value = item.nim;
+      elKelas.value = item.kelas;
+      elProdi.value = item.prodi;
+      elAngkatan.value = item.angkatan || '2025'; // DATA BARU
+      elEmail.value = item.email || '';          // DATA BARU
+      elIPK.value = item.ipk || '';              // DATA BARU
+      elCatatan.value = item.catatan || '';      // DATA BARU
+      // Tampilkan info gambar
+      document.getElementById("gambar-preview").textContent = item.gambar ? "Foto sudah terlampir (Ganti file untuk upload baru)" : "Belum ada foto terlampir.";
+      elNama.focus();
+    }
+  }
+
+  if (delId) {
+    // DELETE DATA
+    const idNum = Number(delId);
+    if (confirm("Yakin hapus data ini?")) {
+      data = data.filter(x => x.id !== idNum);
+      saveData(data);
+      render();
+    }
+  }
+});
+    
+// ------------------- FUNGSI COUNTER ANGKATAN (BARU) -------------------
+const elAngkatanUp = document.getElementById("angkatan-up");
+const elAngkatanDown = document.getElementById("angkatan-down");
+const MIN_ANGKATAN = 2000;
+const MAX_ANGKATAN = 2025;
+
+function updateAngkatan(change) {
+  let currentVal = Number(elAngkatan.value) || MAX_ANGKATAN;
+  let newVal = currentVal + change;
+
+  if (newVal < MIN_ANGKATAN) newVal = MIN_ANGKATAN;
+  if (newVal > MAX_ANGKATAN) newVal = MAX_ANGKATAN;
+
+  elAngkatan.value = newVal;
+}
+
+if (elAngkatanUp && elAngkatanDown) {
+  elAngkatanUp.addEventListener("click", () => updateAngkatan(1));
+  elAngkatanDown.addEventListener("click", () => updateAngkatan(-1));
+}
 
 // ------------------- SEARCH -------------------
 // Ambil elemen input & tombol X
@@ -279,18 +386,21 @@ function importCSV(text) {
   rows.forEach((row, index) => {
     if (index === 0) return; // skip header
     const cols = row.split(",");
-    if (cols.length < 4) return;
+    // Diperlukan 8 kolom (nama, nim, kelas, prodi, angkatan, email, ipk, catatan)
+    // Abaikan catatan/gambar jika kosong
+    if (cols.length < 7) return; 
 
-    const [nama, nim, kelas, prodi] = cols;
+    const [nama, nim, kelas, prodi, angkatan, email, ipk, catatan = ''] = cols.map(c => c.trim());
 
-    if (data.some(m => m.nim === nim.trim())) return;
+    if (!validateForm(nama, nim, kelas, prodi, angkatan, email, ipk)) {
+        console.warn(`Baris ${index + 1} dilewati karena data tidak valid.`);
+        return;
+    }
+    if (data.some(m => m.nim === nim)) return;
 
     data.push({
       id: autoId++,
-      nama: nama.trim(),
-      nim: nim.trim(),
-      kelas: kelas.trim(),
-      prodi: prodi.trim()
+      nama, nim, kelas, prodi, angkatan, email, ipk, catatan, gambar: '' // Gambar dikosongkan saat impor
     });
   });
 
@@ -303,10 +413,13 @@ function importCSV(text) {
 function importExcel(rows) {
   rows.forEach((row, index) => {
     if (index === 0) return; // skip header
+    // Asumsi urutan: [nama, nim, kelas, prodi, angkatan, email, ipk, catatan]
+    const [nama, nim, kelas, prodi, angkatan, email, ipk, catatan = ""] = row;
 
-    const [nama, nim, kelas, prodi] = row;
-    if (!nama || !nim) return;
-
+    if (!validateForm(String(nama), String(nim), String(kelas), String(prodi), String(angkatan), String(email), String(ipk))) {
+        console.warn(`Baris ${index + 1} dilewati karena data tidak valid.`);
+        return;
+    }
     if (data.some(m => m.nim === String(nim).trim())) return;
 
     data.push({
@@ -314,7 +427,12 @@ function importExcel(rows) {
       nama: String(nama).trim(),
       nim: String(nim).trim(),
       kelas: String(kelas || "").trim(),
-      prodi: String(prodi || "").trim()
+      prodi: String(prodi || "").trim(),
+      angkatan: String(angkatan || "2025").trim(), // DATA BARU
+      email: String(email || "").trim(),         // DATA BARU
+      ipk: String(ipk || "").trim(),             // DATA BARU
+      catatan: String(catatan || "").trim(),     // DATA BARU
+      gambar: ''
     });
   });
 
@@ -322,22 +440,30 @@ function importExcel(rows) {
   render();
 }
 
-
 // --------------------- FILTERING AND SORTING -----------------------
 // Sort berdasarkan Nama atau NIM
+
+
 function applySort() {
   const sortBy = document.getElementById("sortBy").value;
   const sortOrder = document.getElementById("sortOrder").value;
 
   if (!sortBy) {
     render();
-    filterData(); // setelah render, baru filter
+    filterData();
     return;
   }
 
   data.sort((a, b) => {
-    let valA = a[sortBy].toString().trim().toLowerCase();
-    let valB = b[sortBy].toString().trim().toLowerCase();
+    let valA, valB;
+    // Sort numerik untuk NIM, Angkatan, IPK
+    if (['nim', 'angkatan', 'ipk'].includes(sortBy)) {
+        valA = Number(a[sortBy] || 0); 
+        valB = Number(b[sortBy] || 0);
+    } else {
+        valA = String(a[sortBy]).trim().toLowerCase();
+        valB = String(b[sortBy]).trim().toLowerCase();
+    }
 
     if (valA < valB) return sortOrder === "asc" ? -1 : 1;
     if (valA > valB) return sortOrder === "asc" ? 1 : -1;
@@ -345,7 +471,7 @@ function applySort() {
   });
 
   render();
-  filterData(); // setelah render, baru filter
+  filterData();
 }
 
 const filterKelas = document.getElementById("filterKelas");
@@ -383,9 +509,18 @@ function updateFilterOptions() {
   if (prodiSet.includes(selectedProdi)) filterProdi.value = selectedProdi;
 }
 
+document.getElementById("sortBy").innerHTML = `
+    <option value="">-- Urutkan --</option>
+    <option value="nama">Nama</option>
+    <option value="nim">NIM</option>
+    <option value="angkatan">Angkatan</option>
+    <option value="ipk">IPK</option>
+`;
+
 // Event listener untuk dropdown Sort
 document.getElementById("sortBy").addEventListener("change", applySort);
 document.getElementById("sortOrder").addEventListener("change", applySort);
+
 
 const exportBtn = document.getElementById("exportBtn");
 const exportOptions = document.getElementById("exportOptions");
@@ -397,14 +532,13 @@ document.getElementById("exportBtn").addEventListener("click", showPreviewBefore
 
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("p", "pt", "a4");
+  const doc = new jsPDF("l", "pt", "a4"); // UBAH ke Landscape (l) untuk banyak kolom
 
   // Ambil kondisi filter, sort, dan search
   const searchVal = document.getElementById("searchInput").value.trim();
   const kelasVal = document.getElementById("filterKelas").value;
   const prodiVal = document.getElementById("filterProdi").value;
 
-  // Buat judul dan subjudul
   let title = "Daftar Mahasiswa";
   let subtitleParts = [];
 
@@ -412,17 +546,17 @@ function downloadPDF() {
   if (prodiVal) subtitleParts.push(`Prodi: ${prodiVal}`);
   if (searchVal) subtitleParts.push(`Pencarian: "${searchVal}"`);
 
-  const subtitle = subtitleParts.join("  |  ");
+  const subtitle = subtitleParts.join(" | ");
 
-  doc.setFontSize(16);
+  doc.setFontSize(14);
   doc.text(title, 40, 40);
 
   if (subtitle) {
-    doc.setFontSize(11);
-    doc.text(subtitle, 40, 60);
+    doc.setFontSize(10);
+    doc.text(subtitle, 40, 58);
   }
 
-  const startY = subtitle ? 80 : 60;
+  const startY = subtitle ? 75 : 55;
 
   // Ambil hanya baris yang tampil di tabel
   const visibleRows = Array.from(document.querySelectorAll("#tbody tr"))
@@ -433,22 +567,30 @@ function downloadPDF() {
     return;
   }
 
-  // Ambil isi tabel dari DOM yang tampil
-  const rows = visibleRows.map(tr => {
-    const cells = tr.querySelectorAll("td");
-    return [
-      cells[0]?.innerText || "",
-      cells[1]?.innerText || "",
-      cells[2]?.innerText || "",
-      cells[3]?.innerText || "",
-      cells[4]?.innerText || ""
-    ];
+  // Ambil isi tabel dari data mentah yang sudah difilter/sort
+  // Mapping dari data array (data) ke format yang dibutuhkan autoTable
+  const exportedData = visibleRows.map(tr => {
+      // Dapatkan ID dari baris yang terlihat (untuk mencari di array data)
+      const dataIndex = Number(tr.cells[0].innerText) - 1; // Anggap indeks di kolom No adalah indeks asli
+      const row = data.find(item => item.id === Number(tr.querySelector('button[data-edit], button[data-del]').getAttribute('data-edit') || tr.querySelector('button[data-edit], button[data-del]').getAttribute('data-del')));
+
+      return [
+        tr.cells[0]?.innerText || "", // No
+        row.nama,
+        row.nim,
+        row.kelas,
+        row.prodi,
+        row.angkatan, // BARU
+        row.email,    // BARU
+        row.ipk       // BARU
+        // Catatan tidak dimasukkan ke PDF untuk menghemat ruang
+      ];
   });
 
   // Tambahkan ke PDF
   doc.autoTable({
-    head: [['No', 'Nama', 'NIM', 'Kelas', 'Program Studi']],
-    body: rows,
+    head: [['No', 'Nama', 'NIM', 'Kelas', 'Program Studi', 'Angkatan', 'Email', 'IPK']], // HEADER BARU
+    body: exportedData,
     startY: startY,
     theme: 'grid',
     headStyles: {
@@ -457,17 +599,15 @@ function downloadPDF() {
       fontStyle: 'bold',
       halign: 'center'
     },
-    bodyStyles: {
-      halign: 'center',
-      valign: 'middle'
-    },
+    styles: { fontSize: 8, cellPadding: 5 },
     columnStyles: {
-      1: { halign: 'left' },
-      4: { halign: 'left' }
-    },
-    styles: {
-      fontSize: 10,
-      cellPadding: 6
+      1: { halign: 'left', cellWidth: 80 },
+      2: { cellWidth: 60 },
+      3: { cellWidth: 60 },
+      4: { halign: 'left', cellWidth: 80 },
+      5: { cellWidth: 50 },
+      6: { halign: 'left', cellWidth: 100 }, // Email
+      7: { cellWidth: 40 } // IPK
     },
     didDrawPage: (data) => {
       doc.setFontSize(9);
@@ -504,6 +644,7 @@ window.addEventListener("click", (e) => {
 function showPreviewBeforeExport() {
   previewTableBody.innerHTML = "";
 
+  // ... (Ambil nilai filter/search sama) ...
   const searchVal = document.getElementById("searchInput").value.trim();
   const kelasVal = document.getElementById("filterKelas").value;
   const prodiVal = document.getElementById("filterProdi").value;
@@ -515,10 +656,22 @@ function showPreviewBeforeExport() {
     alert("Tidak ada data yang cocok untuk diekspor!");
     return;
   }
+  
+  // Update header preview table
+  document.querySelector("#previewTable thead tr").innerHTML = `
+      <th>No</th>
+      <th>Nama</th>
+      <th>NIM</th>
+      <th>Kelas</th>
+      <th>Program Studi</th>
+      <th>Angkatan</th> <th>Email</th> <th>IPK</th> `;
 
   visibleRows.forEach((tr, i) => {
+    // Kloning baris, lalu hapus kolom Aksi dan Gambar (kolom terakhir dan kedua dari terakhir)
     const row = tr.cloneNode(true);
-    row.querySelector("td:last-child").remove(); // Hapus kolom aksi
+    row.querySelector("td:last-child").remove(); // Hapus kolom Aksi
+    row.querySelector("td:last-child").remove(); // Hapus kolom Gambar (kini kolom terakhir)
+
     row.querySelector("td:first-child").textContent = i + 1; // Nomor ulang
     previewTableBody.appendChild(row);
   });
@@ -538,16 +691,23 @@ confirmExportBtn.addEventListener("click", () => {
   downloadPDF();
 });
 
-// ----------------- PROTEKSI LOGIN -----------------
-if (localStorage.getItem("isLoggedIn") !== "true") {
-  window.location.href = "login.html";
+// === LOGOUT BUTTON ===
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", function() {
+    if (confirm("Yakin ingin logout?")) {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "login.html";
+    }
+  });
 }
 
-// ----------------- LOGOUT -----------------
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("isLoggedIn");
+// === CEK STATUS LOGIN ===
+if (localStorage.getItem("isLoggedIn") !== "true") {
+  alert("Silakan login terlebih dahulu!");
   window.location.href = "login.html";
-});
+}
 
 // ------------------- INIT -------------------
 render(); // Render tabel saat halaman pertama kali dibuka
