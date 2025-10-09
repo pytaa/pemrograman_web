@@ -6,7 +6,7 @@
 
 body {
   margin: 0;
-  background-color: #e8faff;
+  background: radial-gradient(#ebedff, #eff2ff);
   font-family: Arial, sans-serif;
 }
 
@@ -608,4 +608,9 @@ td button:hover {
 #confirmExportBtn:hover {
   background: linear-gradient(135deg, #0320a8, #365cff);
   transform: scale(1.03)
+}
+
+.selected-row {
+    background-color: #e0f7ff !important; /* Warna biru muda yang kontras */
+    transition: background-color 0.2s ease;
 }

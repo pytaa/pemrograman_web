@@ -26,6 +26,11 @@ const elCatatan = document.getElementById("catatan");
 const elGambar = document.getElementById("gambar");     
 const tbody = document.getElementById("tbody");
 const btnReset = document.getElementById("btn-reset");
+const btnSimpan = document.getElementById("btn-simpan"); // Ambil tombol simpan/update
+
+// BARU: Elemen Checkbox Master
+const selectAllCheckbox = document.getElementById("selectAll"); 
+
 
 // ------------------- FUNGSI RENDER -------------------
 function render() {
@@ -36,14 +41,15 @@ function render() {
     
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${idx + 1}</td>
+      <td><input type="checkbox" class="row-checkbox" value="${row.id}"></td> 
       <td>${row.nama}</td>
       <td>${row.nim}</td>
       <td>${row.kelas}</td>
       <td>${row.prodi}</td>
       <td>${row.angkatan || '-'}</td>  
       <td>${row.email || '-'}</td>    
-      <td>${row.ipk || '-'}</td>      
+      <td>${row.ipk || '-'}</td>
+      <td>${row.catatan || '-'}</td>
       <td>${imgPreview}</td>         
       <td>
         <button type="button" data-edit="${row.id}">Edit</button>
@@ -54,6 +60,9 @@ function render() {
   });
 
   updateFilterOptions();
+  
+  // Reset state checkbox master setelah render
+  if (selectAllCheckbox) selectAllCheckbox.checked = false;
 }
 
 // ------------------- FUNGSI VALIDASI (BARU) -------------------
@@ -159,6 +168,9 @@ form.addEventListener("submit", async (e) => { // UBAH ke async untuk menunggu F
   elAngkatan.value = "2025"; // Set default angkatan
   elNama.focus();
   document.getElementById("gambar-preview").textContent = ''; // Reset preview
+  
+  // Reset tombol setelah simpan/update
+  btnSimpan.textContent = "Simpan"; 
 });
 
 // ------------------- RESET FORM -------------------
@@ -169,6 +181,7 @@ btnReset.addEventListener("click", () => {
   elAngkatan.value = "2025"; // Set default angkatan
   elNama.focus();
   document.getElementById("gambar-preview").textContent = ''; // Reset preview
+  btnSimpan.textContent = "Simpan"; // Reset teks tombol
 });
 
 // ------------------- HANDLER TOMBOL EDIT / HAPUS -------------------
@@ -192,6 +205,9 @@ tbody.addEventListener("click", (e) => {
       // Tampilkan info gambar
       document.getElementById("gambar-preview").textContent = item.gambar ? "Foto sudah terlampir (Ganti file untuk upload baru)" : "Belum ada foto terlampir.";
       elNama.focus();
+
+      // Ubah teks tombol menjadi Update
+      btnSimpan.textContent = "Update"; 
     }
   }
 
@@ -273,8 +289,9 @@ function filterData() {
   let rows = document.querySelectorAll("#tbody tr");
 
   rows.forEach(row => {
-    let kelas = row.cells[3].textContent.toLowerCase();
-    let prodi = row.cells[4].textContent.toLowerCase();
+    // Indeks cell sudah disesuaikan (Kelas di index 3, Prodi di index 4)
+    let kelas = row.cells[3].textContent.toLowerCase(); 
+    let prodi = row.cells[4].textContent.toLowerCase(); 
 
     let cocokKelas = !valKelas || kelas === valKelas;
     let cocokProdi = !valProdi || prodi === valProdi;
@@ -484,7 +501,7 @@ function importExcel(rows) {
 // --------------------- FILTERING AND SORTING -----------------------
 // Sort berdasarkan Nama atau NIM
 
-
+// DEFINISI FUNGSI applySort HARUS DI SINI AGAR BISA DIPANGGIL OLEH EVENT LISTENERS DI BAWAH
 function applySort() {
   const sortBy = document.getElementById("sortBy").value;
   const sortOrder = document.getElementById("sortOrder").value;
@@ -515,40 +532,9 @@ function applySort() {
   filterData();
 }
 
+
 const filterKelas = document.getElementById("filterKelas");
 const filterProdi = document.getElementById("filterProdi");
-
-function updateFilterOptions() {
-  // Ambil semua kelas & prodi unik dari data
-  let kelasSet = [...new Set(data.map(item => item.kelas).filter(Boolean))].sort();
-  let prodiSet = [...new Set(data.map(item => item.prodi).filter(Boolean))].sort();
-
-  // Simpan pilihan user sebelumnya
-  const selectedKelas = filterKelas.value;
-  const selectedProdi = filterProdi.value;
-
-  // Render ulang kelas
-  filterKelas.innerHTML = '<option value="">Semua Kelas</option>';
-  kelasSet.forEach(kls => {
-    const option = document.createElement("option");
-    option.value = kls;
-    option.textContent = kls;
-    filterKelas.appendChild(option);
-  });
-
-  // Render ulang prodi
-  filterProdi.innerHTML = '<option value="">Semua Prodi</option>';
-  prodiSet.forEach(p => {
-    const option = document.createElement("option");
-    option.value = p;
-    option.textContent = p;
-    filterProdi.appendChild(option);
-  });
-
-  // Kembalikan pilihan sebelumnya kalau masih ada di opsi
-  if (kelasSet.includes(selectedKelas)) filterKelas.value = selectedKelas;
-  if (prodiSet.includes(selectedProdi)) filterProdi.value = selectedProdi;
-}
 
 document.getElementById("sortBy").innerHTML = `
     <option value="">-- Urutkan --</option>
@@ -610,27 +596,27 @@ function downloadPDF() {
 
   // Ambil isi tabel dari data mentah yang sudah difilter/sort
   // Mapping dari data array (data) ke format yang dibutuhkan autoTable
-  const exportedData = visibleRows.map(tr => {
+  const exportedData = visibleRows.map((tr, index) => {
       // Dapatkan ID dari baris yang terlihat (untuk mencari di array data)
-      const dataIndex = Number(tr.cells[0].innerText) - 1; // Anggap indeks di kolom No adalah indeks asli
       const row = data.find(item => item.id === Number(tr.querySelector('button[data-edit], button[data-del]').getAttribute('data-edit') || tr.querySelector('button[data-edit], button[data-del]').getAttribute('data-del')));
 
       return [
-        tr.cells[0]?.innerText || "", // No
+        index + 1, // Nomor Urut
         row.nama,
         row.nim,
         row.kelas,
         row.prodi,
-        row.angkatan, // BARU
-        row.email,    // BARU
-        row.ipk       // BARU
-        // Catatan tidak dimasukkan ke PDF untuk menghemat ruang
+        row.angkatan, 
+        row.email,    
+        row.ipk,
+        row.catatan || '-',
+        row.gambar ? 'Terlampir' : '-' // Status Gambar
       ];
   });
 
   // Tambahkan ke PDF
   doc.autoTable({
-    head: [['No', 'Nama', 'NIM', 'Kelas', 'Program Studi', 'Angkatan', 'Email', 'IPK']], // HEADER BARU
+    head: [['No', 'Nama', 'NIM', 'Kelas', 'Program Studi', 'Angkatan', 'Email', 'IPK', 'Catatan', 'Gambar']], 
     body: exportedData,
     startY: startY,
     theme: 'grid',
@@ -642,13 +628,16 @@ function downloadPDF() {
     },
     styles: { fontSize: 8, cellPadding: 5 },
     columnStyles: {
-      1: { halign: 'left', cellWidth: 80 },
-      2: { cellWidth: 60 },
-      3: { cellWidth: 60 },
-      4: { halign: 'left', cellWidth: 80 },
-      5: { cellWidth: 50 },
-      6: { halign: 'left', cellWidth: 100 }, // Email
-      7: { cellWidth: 40 } // IPK
+      0: { cellWidth: 30 }, // No
+      1: { halign: 'left', cellWidth: 70 }, // Nama
+      2: { cellWidth: 50 }, // NIM
+      3: { cellWidth: 50 }, // Kelas
+      4: { halign: 'left', cellWidth: 70 }, // Prodi
+      5: { cellWidth: 40 }, // Angkatan
+      6: { halign: 'left', cellWidth: 80 }, // Email
+      7: { cellWidth: 35 }, // IPK
+      8: { halign: 'left', cellWidth: 70 }, // Catatan
+      9: { halign: 'center', cellWidth: 40 } // Gambar Status
     },
     didDrawPage: (data) => {
       doc.setFontSize(9);
@@ -705,16 +694,33 @@ function showPreviewBeforeExport() {
       <th>NIM</th>
       <th>Kelas</th>
       <th>Program Studi</th>
-      <th>Angkatan</th> <th>Email</th> <th>IPK</th> `;
+      <th>Angkatan</th> 
+      <th>Email</th> 
+      <th>IPK</th>
+      <th>Catatan</th> 
+      <th>Gambar</th> `;
 
   visibleRows.forEach((tr, i) => {
-    // Kloning baris, lalu hapus kolom Aksi dan Gambar (kolom terakhir dan kedua dari terakhir)
-    const row = tr.cloneNode(true);
-    row.querySelector("td:last-child").remove(); // Hapus kolom Aksi
-    row.querySelector("td:last-child").remove(); // Hapus kolom Gambar (kini kolom terakhir)
+    // Kloning baris dari elemen <tr>
+    const originalRow = tr.cloneNode(true);
+    
+    // Buat baris baru untuk preview
+    const newRow = document.createElement("tr");
 
-    row.querySelector("td:first-child").textContent = i + 1; // Nomor ulang
-    previewTableBody.appendChild(row);
+    // 1. Tambahkan Nomor Urut (Menggantikan Checkbox)
+    const tdNo = document.createElement("td");
+    tdNo.textContent = i + 1;
+    newRow.appendChild(tdNo);
+
+    // 2. Salin kolom data (Nama, NIM, dst.) sampai sebelum Aksi
+    // Kolom data di originalRow adalah: Checkbox(0), Nama(1) ... Gambar(9), Aksi(10)
+    // Kita salin dari index 1 (Nama) sampai index 9 (Gambar)
+    
+    for (let j = 1; j < originalRow.cells.length - 1; j++) {
+        newRow.appendChild(originalRow.cells[j].cloneNode(true));
+    }
+
+    previewTableBody.appendChild(newRow);
   });
 
   // Info tambahan di preview
@@ -732,16 +738,61 @@ confirmExportBtn.addEventListener("click", () => {
   downloadPDF();
 });
 
+// ------------------- LOGIKA CHECKBOX BARU -------------------
+// BARU: Fungsi helper untuk menambahkan/menghapus kelas
+function toggleRowContrast(checkbox) {
+    // Dapatkan elemen <tr> terdekat (induk dari <td> yang berisi checkbox)
+    const row = checkbox.closest('tr');
+    if (checkbox.checked) {
+        row.classList.add('selected-row');
+    } else {
+        row.classList.remove('selected-row');
+    }
+}
+
+// Logic Select All
+if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener("change", function() {
+        // Hanya cek checkbox dari baris yang terlihat (tidak di-filter/search)
+        const visibleCheckboxes = document.querySelectorAll("#tbody tr[style='display:'] .row-checkbox, #tbody tr:not([style='display:none']) .row-checkbox");
+        
+        visibleCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+            toggleRowContrast(checkbox); // Panggil helper untuk efek kontras
+        });
+    });
+}
+
+// Logic Checkbox Individu
+tbody.addEventListener("change", (e) => {
+    if (e.target.classList.contains("row-checkbox")) {
+        const checkbox = e.target;
+        
+        // 1. Terapkan/hapus kontras pada baris yang diklik
+        toggleRowContrast(checkbox);
+
+        // 2. Perbarui status checkbox master
+        const visibleCheckboxes = document.querySelectorAll("#tbody tr[style='display:'] .row-checkbox, #tbody tr:not([style='display:none']) .row-checkbox");
+        const allChecked = Array.from(visibleCheckboxes).every(cb => cb.checked);
+        
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = allChecked;
+        }
+    }
+});
+// ------------------- AKHIR LOGIKA CHECKBOX BARU -------------------
+
+
 // === LOGOUT BUTTON ===
 const logoutBtn = document.getElementById("logoutBtn");
 
 if (logoutBtn) {
-  logoutBtn.addEventListener("click", function() {
-    if (confirm("Yakin ingin logout?")) {
-      localStorage.removeItem("isLoggedIn");
-      window.location.href = "login.html";
-    }
-  });
+  logoutBtn.addEventListener("click", function() {
+    if (confirm("Yakin ingin logout?")) {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "login.html";
+    }
+  });
 }
 
 // === CEK STATUS LOGIN & INIT ===
