@@ -41,7 +41,11 @@ function render() {
       <td>${row.nim}</td>
       <td>${row.kelas}</td>
       <td>${row.prodi}</td>
-      <td>${row.angkatan || '-'}</td>  <td>${row.email || '-'}</td>    <td>${row.ipk || '-'}</td>      <td>${imgPreview}</td>         <td>
+      <td>${row.angkatan || '-'}</td>  
+      <td>${row.email || '-'}</td>    
+      <td>${row.ipk || '-'}</td>      
+      <td>${imgPreview}</td>         
+      <td>
         <button type="button" data-edit="${row.id}">Edit</button>
         <button type="button" data-del="${row.id}">Hapus</button>
       </td>
@@ -378,29 +382,61 @@ document.getElementById("btn-upload").addEventListener("click", () => {
   }
 });
 
+function formatIpk(rawIpk) {
+    // 1. Handle tipe data Number (dari input manual atau XLSX)
+    if (typeof rawIpk === 'number') {
+        return rawIpk.toFixed(2); // Menangani 3.9 -> "3.90" atau 4 -> "4.00"
+    } 
+
+    let ipkString = String(rawIpk || "").trim();
+    // 2. Ganti koma dengan titik (Solusi CSV)
+    ipkString = ipkString.replace(/,/g, '.');
+
+    // 3. Handle angka bulat (e.g., "4" -> "4.00")
+    if (/^\d$/.test(ipkString)) {
+        return ipkString + '.00';
+    }
+    
+    // 4. Handle satu desimal (e.g., "3.9" -> "3.90")
+    if (/^\d\.\d$/.test(ipkString)) {
+        return ipkString + '0';
+    }
+    
+    // 5. Kembalikan format yang sudah benar (e.g., "4.00", "3.85")
+    return ipkString;
+}
+
 
 // 🔹 Fungsi Import CSV
 function importCSV(text) {
-  const rows = text.split("\n").map(r => r.trim()).filter(r => r.length > 0);
+  const rows = text.split("\n").map(r => r.trim()).filter(r => r.length > 0);
 
-  rows.forEach((row, index) => {
-    if (index === 0) return; // skip header
-    const cols = row.split(",");
-    // Diperlukan 8 kolom (nama, nim, kelas, prodi, angkatan, email, ipk, catatan)
-    // Abaikan catatan/gambar jika kosong
-    if (cols.length < 7) return; 
+  rows.forEach((row, index) => {
+    if (index === 0) return; // skip header
+    
+    let cols = row.split(",");
+    if (cols.length < 7) { // Coba deteksi semicolon jika koma gagal
+        cols = row.split(";"); 
+    }
+    
+    if (cols.length < 7) return; 
 
-    const [nama, nim, kelas, prodi, angkatan, email, ipk, catatan = ''] = cols.map(c => c.trim());
+    // Pastikan ini destructuring 8 elemen data (Nama s.d. Foto)
+    const [nama, nim, kelas, prodi, angkatan, email, rawIpk, catatan = ''] = cols.map(c => c.trim());
 
-    if (!validateForm(nama, nim, kelas, prodi, angkatan, email, ipk)) {
-        console.warn(`Baris ${index + 1} dilewati karena data tidak valid.`);
-        return;
-    }
+    // --- GUNAKAN FUNGSI PEMBATU IPK YANG BARU ---
+    let ipk = formatIpk(rawIpk); 
+    // ---------------------------------------------
+    
+    if (!validateForm(nama, nim, kelas, prodi, angkatan, email, ipk)) {
+        console.warn(`Baris ${index + 1} dilewati karena data tidak valid: ${ipk}`);
+        return;
+    }
     if (data.some(m => m.nim === nim)) return;
 
     data.push({
       id: autoId++,
-      nama, nim, kelas, prodi, angkatan, email, ipk, catatan, gambar: '' // Gambar dikosongkan saat impor
+      nama, nim, kelas, prodi, angkatan, email, ipk, catatan, gambar: '' 
     });
   });
 
@@ -411,15 +447,20 @@ function importCSV(text) {
 
 // 🔹 Fungsi Import Excel
 function importExcel(rows) {
-  rows.forEach((row, index) => {
-    if (index === 0) return; // skip header
-    // Asumsi urutan: [nama, nim, kelas, prodi, angkatan, email, ipk, catatan]
-    const [nama, nim, kelas, prodi, angkatan, email, ipk, catatan = ""] = row;
+  rows.forEach((row, index) => {
+    if (index === 0) return; // skip header
 
-    if (!validateForm(String(nama), String(nim), String(kelas), String(prodi), String(angkatan), String(email), String(ipk))) {
-        console.warn(`Baris ${index + 1} dilewati karena data tidak valid.`);
-        return;
-    }
+    const [nama, nim, kelas, prodi, angkatan, email, rawIpk, catatan = ""] = row;
+    
+    // --- GUNAKAN FUNGSI PEMBATU ---
+    let ipk = formatIpk(rawIpk);
+    // ------------------------------
+
+    // Validasi menggunakan nilai 'ipk' yang sudah diformat
+    if (!validateForm(String(nama), String(nim), String(kelas), String(prodi), String(angkatan), String(email), ipk)) {
+        console.warn(`Baris ${index + 1} dilewati karena data tidak valid.`);
+        return;
+    }
     if (data.some(m => m.nim === String(nim).trim())) return;
 
     data.push({
@@ -428,10 +469,10 @@ function importExcel(rows) {
       nim: String(nim).trim(),
       kelas: String(kelas || "").trim(),
       prodi: String(prodi || "").trim(),
-      angkatan: String(angkatan || "2025").trim(), // DATA BARU
-      email: String(email || "").trim(),         // DATA BARU
-      ipk: String(ipk || "").trim(),             // DATA BARU
-      catatan: String(catatan || "").trim(),     // DATA BARU
+      angkatan: String(angkatan || "2025").trim(), 
+      email: String(email || "").trim(),         
+      ipk: ipk,             
+      catatan: String(catatan || "").trim(),     
       gambar: ''
     });
   });
@@ -695,19 +736,21 @@ confirmExportBtn.addEventListener("click", () => {
 const logoutBtn = document.getElementById("logoutBtn");
 
 if (logoutBtn) {
-  logoutBtn.addEventListener("click", function() {
-    if (confirm("Yakin ingin logout?")) {
-      localStorage.removeItem("isLoggedIn");
-      window.location.href = "login.html";
-    }
-  });
+  logoutBtn.addEventListener("click", function() {
+    if (confirm("Yakin ingin logout?")) {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "login.html";
+    }
+  });
 }
 
-// === CEK STATUS LOGIN ===
+// === CEK STATUS LOGIN & INIT ===
+// HANYA RENDER JIKA isLggedIn === "true"
 if (localStorage.getItem("isLoggedIn") !== "true") {
-  alert("Silakan login terlebih dahulu!");
-  window.location.href = "login.html";
+    alert("Silakan login terlebih dahulu!");
+    window.location.href = "login.html";
+} else {
+    // ------------------- INIT -------------------
+    // render() hanya dipanggil di sini.
+    render(); 
 }
-
-// ------------------- INIT -------------------
-render(); // Render tabel saat halaman pertama kali dibuka
