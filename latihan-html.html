@@ -96,70 +96,38 @@
           <button type="button" id="btn-reset">Reset</button>
         </div>
       </form>
-
-      
-
-      <!------------------- Upload CSV ------------------>
-      <!-- Tombol Awal -->
-      <div class="upload-section">
-        <p>Atau</p>
-        <button type="button" id="show-upload">Unggah Data</button>
-      </div>
-
-      <!-- Popup Modal -->
-      <div id="uploadModal" class="modal">
-        <div class="modal-content">
-          <span class="close">&times;</span>
-          <h3>Unggah Data</h3>
-          <label for="csvFile">Pilih File (CSV / XLS / XLSX):</label>
-          <input type="file" id="csvFile" accept=".csv, .xls, .xlsx">
-          <button type="button" id="btn-upload">Unggah</button>
-        </div>
-      </div>
   </section>
-
-
+  
       <!-- Tabel untuk menampilkan data mahasiswa -->
-      <h2>Daftar Mahasiswa</h2>
-      <!-- Search Bar -->
-      <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Cari mahasiswa...">
-
-        <!-- Tombol X (clear) -->
-        <span class="icon" id="clearBtn">&times;</span>
-      </div>
-
-      <div class="filter-sort-wrapper">
-        <!-- Filter Dropdown -->
-        <div class="filter">
-          <select id="filterKelas">
-            <option value="">Semua Kelas</option>
-          </select>
-  
-          <select id="filterProdi">
-            <option value="">Semua Prodi</option>
-          </select>
-        </div>
-  
-        <!--Sort berdasarkan Nama atau NIM-->
-        <!-- Sort Dropdown -->
-        <div class="sort-section">
-          <select id="sortBy">
-            <option value="">-- Urutkan --</option>
-            <option value="nama">Nama</option>
-            <option value="nim">NIM</option>
-          </select>
-  
-          <select id="sortOrder">
-            <option value="">-- Urutkan --</option>
-            <option value="asc">Menaik</option>
-            <option value="desc">Menurun</option>
-          </select>
-        </div>
-      </div>
-
       <!-- Tabel Daftar Mahasiswa -->
       <div class="table-wrapper">
+        <!-- HEADER DI ATAS TABEL -->
+        <div id="table-header">
+          <div class="header-left">
+            <span id="data-info">Menampilkan 0 dari 0 data</span>
+
+            <select id="filter-prodi">
+              <option value="">Semua Prodi</option>
+              <option value="Teknik Informatika">Teknik Informatika</option>
+              <option value="Teknik Elektro">Teknik Elektro</option>
+              <option value="Teknik Mesin">Teknik Mesin</option>
+              <option value="Teknik Industri">Teknik Industri</option>
+            </select>
+
+            <select id="filter-angkatan">
+              <option value="">Semua Angkatan</option>
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+            </select>
+          </div>
+
+          <div class="header-right">
+            <input type="text" id="search" placeholder="Cari nama/NIM/email...">
+            <button id="hapus-semua" class="danger-btn">Hapus Semua Data</button>
+          </div>
+        </div>
         <table cellpadding="5">
           <thead>
             <tr>
@@ -180,42 +148,6 @@
                       </tbody>
         </table>
       </div>
-
-      <!-- Tombol Ekspor (Floating) -->
-      <div class="export-section">
-        <button id="exportBtn">Ekspor PDF</button>
-      </div>
-
-      <!-- Modal Preview Sebelum Ekspor PDF -->
-      <div id="previewModal" class="modal">
-        <div class="modal-content">
-          <span class="close-preview" style="float:right; cursor:pointer;">&times;</span>
-          <h2>Preview Data yang Akan Diekspor</h2>
-          <p id="previewInfo" style="font-style: italic; color: #444;"></p>
-          <div style="max-height: 400px; overflow:auto;">
-            <table id="previewTable">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Nama</th>
-                  <th>NIM</th>
-                  <th>Kelas</th>
-                  <th>Program Studi</th>
-                  <th>Angkatan</th> 
-                  <th>Email</th> 
-                  <th>IPK</th>
-                  <th>Catatan</th>
-                  <th>Foto</th>                 
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div style="text-align:right; margin-top:10px;">
-            <button id="confirmExportBtn">Konfirmasi Ekspor PDF</button>
-          </div>
-        </div>
-      </div>
 
   <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
