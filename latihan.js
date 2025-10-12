@@ -31,14 +31,24 @@ const btnSimpan = document.getElementById("btn-simpan"); // Ambil tombol simpan/
 // BARU: Elemen Checkbox Master
 const selectAllCheckbox = document.getElementById("selectAll"); 
 
+let currentPage = 1;
+let rowsPerPage = Number(document.getElementById("rowsPerPage").value);
+let filteredData = [...data]; // simpan data hasil filter/search/sort
 
 // ------------------- FUNGSI RENDER -------------------
-function render() {
-  if (!Array.isArray(data)) data = [];
-  tbody.innerHTML = ""; // Kosongkan tabel sebelum render ulang
-  data.forEach((row, idx) => {
-    const imgPreview = row.gambar ? `<img src="${row.gambar}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">` : '-';
-    
+function render(list = filteredData) {
+  if (!Array.isArray(list)) list = [];
+  tbody.innerHTML = "";
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginatedData = list.slice(start, end);
+
+  paginatedData.forEach((row) => {
+    const imgPreview = row.gambar
+      ? `<img src="${row.gambar}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">`
+      : "-";
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><input type="checkbox" class="row-checkbox" value="${row.id}"></td> 
@@ -46,11 +56,11 @@ function render() {
       <td>${row.nim}</td>
       <td>${row.kelas}</td>
       <td>${row.prodi}</td>
-      <td>${row.angkatan || '-'}</td>  
-      <td>${row.email || '-'}</td>    
-      <td>${row.ipk || '-'}</td>
-      <td>${row.catatan || '-'}</td>
-      <td>${imgPreview}</td>         
+      <td>${row.angkatan || "-"}</td>
+      <td>${row.email || "-"}</td>
+      <td>${row.ipk || "-"}</td>
+      <td>${row.catatan || "-"}</td>
+      <td>${imgPreview}</td>
       <td>
         <button type="button" data-edit="${row.id}">Edit</button>
         <button type="button" data-del="${row.id}">Hapus</button>
@@ -59,11 +69,58 @@ function render() {
     tbody.appendChild(tr);
   });
 
+  const totalFiltered = list.length;
+  const visibleCount = paginatedData.length;
+  const totalPages = Math.ceil(totalFiltered / rowsPerPage);
+  document.getElementById("data-info").textContent =
+    `${totalFiltered} data`;
+
   updateFilterOptions();
-  
-  // Reset state checkbox master setelah render
   if (selectAllCheckbox) selectAllCheckbox.checked = false;
 }
+
+//------------------- ATURAN TAMPILAN DATA -------------------
+function nextPage() {
+  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    render();
+  }
+}
+
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    render();
+  }
+}
+
+document.getElementById("nextPageBtn")?.addEventListener("click", nextPage);
+document.getElementById("prevPageBtn")?.addEventListener("click", prevPage);
+
+// ------------------- RESET FILTER -------------------
+document.getElementById("resetFilterBtn").addEventListener("click", () => {
+  // Kosongkan nilai search
+  document.getElementById("searchInput").value = "";
+
+  // Kosongkan dropdown filter
+  document.getElementById("filterAngkatan").value = "";
+  document.getElementById("filterProdi").value = "";
+
+  // Reset variabel global
+  filteredData = [...data];
+  currentPage = 1;
+
+  // Render ulang tabel
+  render();
+});
+
+//------------------- JUMLAH DATA PER HALAMAN -------------------
+document.getElementById("rowsPerPage").addEventListener("change", (e) => {
+  rowsPerPage = Number(e.target.value);
+  currentPage = 1;
+  render();
+});
 
 // ------------------- FUNGSI VALIDASI (BARU) -------------------
 function validateForm(nama, nim, kelas, prodi, angkatan, email, ipk) {
@@ -250,18 +307,17 @@ const clearBtn = document.getElementById("clearBtn");
 
 // Fungsi filter berdasarkan teks input
 function searchData() {
-  let filter = input.value.toLowerCase();
-  let rows = document.querySelectorAll("#tbody tr");
-
-  rows.forEach(row => {
-    let text = row.textContent.toLowerCase();
-    if (text.includes(filter)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
+  const filter = input.value.toLowerCase();
+  filteredData = data.filter(row =>
+    Object.values(row)
+      .join(" ")
+      .toLowerCase()
+      .includes(filter)
+  );
+  currentPage = 1;
+  render();
 }
+
 
 // Fitur Search tekan Enter
 input.addEventListener("keydown", function(e) {
@@ -284,20 +340,17 @@ document.getElementById("filterAngkatan").addEventListener("change", filterData)
 document.getElementById("filterProdi").addEventListener("change", filterData);
 
 function filterData() {
-  let valAngkatan = document.getElementById("filterAngkatan").value.toLowerCase();
-  let valProdi = document.getElementById("filterProdi").value.toLowerCase();
-  let rows = document.querySelectorAll("#tbody tr");
+  const valAngkatan = document.getElementById("filterAngkatan").value.toLowerCase();
+  const valProdi = document.getElementById("filterProdi").value.toLowerCase();
 
-  rows.forEach(row => {
-    // Perhatikan: angkatan di tabel ada di kolom ke-5 (index 5)
-    let angkatan = row.cells[5].textContent.toLowerCase();
-    let prodi = row.cells[4].textContent.toLowerCase();
-
-    let cocokAngkatan = !valAngkatan || angkatan === valAngkatan;
-    let cocokProdi = !valProdi || prodi === valProdi;
-
-    row.style.display = (cocokAngkatan && cocokProdi) ? "" : "none";
+  filteredData = data.filter(row => {
+    const cocokA = !valAngkatan || (row.angkatan || "").toLowerCase() === valAngkatan;
+    const cocokP = !valProdi || (row.prodi || "").toLowerCase() === valProdi;
+    return cocokA && cocokP;
   });
+
+  currentPage = 1;
+  render();
 }
 
 function updateFilterOptions() {
@@ -331,6 +384,19 @@ function updateFilterOptions() {
   if (angkatanSet.includes(selectedAngkatan)) filterAngkatan.value = selectedAngkatan;
   if (prodiSet.includes(selectedProdi)) filterProdi.value = selectedProdi;
 }
+
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+  if (confirm("Yakin ingin menghapus semua data?")) {
+    data = [];
+    saveData(data);
+    
+    // Reset dropdown filter
+    document.getElementById("filterAngkatan").innerHTML = '<option value="">Semua Angkatan</option>';
+    document.getElementById("filterProdi").innerHTML = '<option value="">Semua Prodi</option>';
+
+    render();
+  }
+});
 
 // ------------------- IMPOR DATA -------------------
 // Ambil elemen
@@ -508,19 +574,23 @@ function applySort() {
 
   if (!sortBy) {
     render();
-    filterData();
     return;
   }
 
-  data.sort((a, b) => {
-    let valA, valB;
-    // Sort numerik untuk NIM, Angkatan, IPK
-    if (['nim', 'angkatan', 'ipk'].includes(sortBy)) {
-        valA = Number(a[sortBy] || 0); 
-        valB = Number(b[sortBy] || 0);
+  filteredData.sort((a, b) => {
+    let valA = a[sortBy];
+    let valB = b[sortBy];
+
+    // Untuk NIM jangan ubah ke Number biar 0 depan tidak hilang
+    if (sortBy === "nim") {
+      valA = String(valA);
+      valB = String(valB);
+    } else if (["angkatan", "ipk"].includes(sortBy)) {
+      valA = Number(valA) || 0;
+      valB = Number(valB) || 0;
     } else {
-        valA = String(a[sortBy]).trim().toLowerCase();
-        valB = String(b[sortBy]).trim().toLowerCase();
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
     }
 
     if (valA < valB) return sortOrder === "asc" ? -1 : 1;
@@ -528,10 +598,9 @@ function applySort() {
     return 0;
   });
 
+  currentPage = 1;
   render();
-  filterData();
 }
-
 
 const filterAngkatan = document.getElementById("filterAngkatan");
 const filterProdi = document.getElementById("filterProdi");
@@ -798,10 +867,9 @@ if (logoutBtn) {
 // === CEK STATUS LOGIN & INIT ===
 // HANYA RENDER JIKA isLggedIn === "true"
 if (localStorage.getItem("isLoggedIn") !== "true") {
-    alert("Silakan login terlebih dahulu!");
-    window.location.href = "login.html";
+  alert("Silakan login terlebih dahulu!");
+  window.location.href = "login.html";
 } else {
-    // ------------------- INIT -------------------
-    // render() hanya dipanggil di sini.
-    render(); 
+  filteredData = [...data];
+  render();
 }

@@ -12,17 +12,18 @@ body {
 
 .header {
   width: 100%;
-  background: linear-gradient(135deg, #021068, #0634ff);
+  background: linear-gradient(170deg, #021068, #1a2777, #0634ff);
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 50px;
+  padding: 20px 50px;
   box-sizing: border-box;
   position: sticky;
   top: 0;
   left: 0;
   z-index: 1000;
+  border-radius: 0 0 14px 14px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
@@ -387,7 +388,7 @@ button:hover {
 /* Filter wrapper utama (satu baris, rapi) */
 .filter-sort-wrapper {
   background: #021068;
-  padding: 12px 18px;
+  padding: 20px 18px;
   border-radius: 14px;
   color: #fff;
   display: flex;
@@ -482,11 +483,20 @@ button:hover {
 
 /* tombol hapus semua */
 .danger-btn { 
-  background: #d9534f; color:#fff; border:none; padding:8px 14px; border-radius:10px; cursor:pointer; 
+  background: #e9293d; 
+  color:#fff; 
+  border:none; 
+  padding:8px 14px; 
+  border-radius:10px; 
+  cursor:pointer; 
 }
 
 /* kecilkan gap untuk sort-section agar rapih */
-.sort-section { display:flex; gap:8px; align-items:center; }
+.sort-section { 
+  display:flex; 
+  gap:8px; 
+  align-items:center; 
+}
 
 /* Label Sort (jika digunakan) */
 .sort-section label {
@@ -514,7 +524,7 @@ table {
 }
 
 thead {
-    background-color: #021068;
+    background: #021068;
     color: white;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
@@ -547,7 +557,7 @@ td button[data-edit] {
     }
 
 td button[data-del] {
-    background-color: #dc3545;
+    background-color: #e9293d;
     color: white;
 }
 
@@ -695,4 +705,18 @@ td button:hover {
 .selected-row {
     background-color: #e0f7ff !important; /* Warna biru muda yang kontras */
     transition: background-color 0.2s ease;
+}
+
+.reset-btn {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reset-btn:hover {
+  background-color: #d5d5d5;
 }

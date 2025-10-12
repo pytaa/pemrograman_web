@@ -122,7 +122,7 @@
       <!-- Tabel untuk menampilkan data mahasiswa -->
       <div class="filter-sort-wrapper">
         <div class="filter-left-wrap">
-          <div id="data-info">Menampilkan 0 dari 0</div>
+          <div id="data-info">0 Data</div>
 
           <!-- Jumlah per halaman -->
           <select id="rowsPerPage">
@@ -158,11 +158,13 @@
               <option value="desc">Menurun</option>
             </select>
           </div>
+
+          <button id="resetFilterBtn" class="reset-btn">Reset Filter</button>
         </div>
 
         <div class="filter-right-wrap">
           <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Cari nama/NIM/email...">
+            <input type="text" id="searchInput" placeholder="Cari...">
             <span class="icon" id="clearBtn">&times;</span>
           </div>
 
@@ -193,6 +195,11 @@
                       </tbody>
         </table>
       </div>
+
+      <div class="pagination">
+        <button id="prevPageBtn">Prev</button>
+        <button id="nextPageBtn">Next</button>
+      </div>
 
       <!-- Tombol Ekspor (Floating) -->
       <div class="export-section">
