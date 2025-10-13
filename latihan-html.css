@@ -113,7 +113,7 @@ p {
     flex-wrap: wrap; 
     gap: 20px;       
     margin-bottom: 20px;
-    align-items: flex-start;
+    align-items: baseline;
 }
 
 .formInput {
@@ -565,6 +565,63 @@ table {
   background: white;
   border-radius: 12px 12px 0 0;
   table-layout: fixed;
+}
+
+/* === ATUR LEBAR KOLOM === */
+table th:nth-child(1), 
+table td:nth-child(1) {
+  width: 40px; /* kotak checkbox kecil */
+}
+
+table th:nth-child(2), 
+table td:nth-child(2) {
+  width: 180px; /* nama agak panjang */
+}
+
+table th:nth-child(3), 
+table td:nth-child(3) {
+  width: 110px; /* NIM */
+}
+
+table th:nth-child(4), 
+table td:nth-child(4) {
+  width: 70px; /* Kelas */
+}
+
+table th:nth-child(5), 
+table td:nth-child(5) {
+  width: 150px; /* Program Studi */
+}
+
+table th:nth-child(6), 
+table td:nth-child(6) {
+  width: 80px; /* Angkatan */
+}
+
+table th:nth-child(7), 
+table td:nth-child(7) {
+  width: 220px; /* Email (dilebarin supaya nggak kepotong) */
+  word-break: break-word; /* biar email bisa turun ke bawah jika panjang */
+}
+
+table th:nth-child(8), 
+table td:nth-child(8) {
+  width: 60px; /* IPK */
+}
+
+table th:nth-child(9), 
+table td:nth-child(9) {
+  width: 130px; /* Catatan */
+}
+
+table th:nth-child(10), 
+table td:nth-child(10) {
+  width: 90px; /* Gambar */
+}
+
+table th:nth-child(11), 
+table td:nth-child(11) {
+  width: 120px; /* Aksi (Edit / Hapus) */
 }
 
 thead {

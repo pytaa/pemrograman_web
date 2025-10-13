@@ -46,7 +46,7 @@ function render(list = filteredData) {
 
   paginatedData.forEach((row) => {
     const imgPreview = row.gambar
-      ? `<img src="${row.gambar}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">`
+      ? `<img src="${row.gambar}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover;">`
       : "-";
 
     const tr = document.createElement("tr");
@@ -81,6 +81,13 @@ function render(list = filteredData) {
   if (selectAllCheckbox) selectAllCheckbox.checked = false;
 }
 
+//------------------- UPDATE DATA TABEL -------------------
+function syncAndRender(resetPage = false) {
+  filteredData = [...data];
+  if (resetPage) currentPage = 1;
+  render();
+}
+
 //------------------- ATURAN TAMPILAN DATA -------------------
 function nextPage() {
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -110,18 +117,17 @@ document.getElementById("resetFilterBtn").addEventListener("click", () => {
   document.getElementById("filterProdi").value = "";
 
   // Reset variabel global
-  filteredData = [...data];
   currentPage = 1;
 
   // Render ulang tabel
-  render();
+  syncAndRender();
 });
 
 //------------------- JUMLAH DATA PER HALAMAN -------------------
 document.getElementById("rowsPerPage").addEventListener("change", (e) => {
   rowsPerPage = Number(e.target.value);
   currentPage = 1;
-  render();
+  syncAndRender();
 });
 
 // ------------------- FUNGSI VALIDASI (BARU) -------------------
@@ -196,31 +202,56 @@ form.addEventListener("submit", async (e) => { // UBAH ke async untuk menunggu F
   // --- Akhir Proses Upload Gambar ---
 
   if (idVal) {
-    // UPDATE DATA
+    // ---------------- UPDATE DATA ----------------
     const idNum = Number(idVal);
     const idx = data.findIndex(x => x.id === idNum);
+
     if (idx >= 0) {
+      // Jika data lama belum punya gambar DAN user tidak upload baru
+      if (!data[idx].gambar && !file) {
+        alert("Harap unggah foto terlebih dahulu!");
+        return;
+      }
+
+      // Update field
       data[idx].nama = nama;
       data[idx].nim = nim;
       data[idx].kelas = kelas;
       data[idx].prodi = prodi;
-      data[idx].angkatan = angkatan;  // UPDATE BARU
-      data[idx].email = email;        // UPDATE BARU
-      data[idx].ipk = ipk;            // UPDATE BARU
-      data[idx].catatan = catatan;    // UPDATE BARU
-      data[idx].gambar = gambarBase64;// UPDATE BARU
+      data[idx].angkatan = angkatan;
+      data[idx].email = email;
+      data[idx].ipk = ipk;
+      data[idx].catatan = catatan;
+      data[idx].gambar = file ? gambarBase64 : data[idx].gambar;
+
+      alert("Data berhasil diperbarui!");
     }
   } else {
-    // CREATE DATA BARU
-    data.push({ 
-        id: autoId++, 
-        nama, nim, kelas, prodi, 
-        angkatan, email, ipk, catatan, gambar: gambarBase64 
-    });
+    // ---------------- TAMBAH DATA BARU ----------------
+    if (!file) {
+      alert("Harap unggah foto terlebih dahulu!");
+      return;
+    }
+
+    const newMahasiswa = {
+      id: autoId++,
+      nama,
+      nim,
+      kelas,
+      prodi,
+      angkatan,
+      email,
+      ipk,
+      catatan,
+      gambar: gambarBase64
+    };
+
+    data.push(newMahasiswa);
+    alert("Data baru berhasil ditambahkan!");
   }
 
   saveData(data);
-  render();
+  syncAndRender();
   form.reset();
   elId.value = ""; 
   elProdi.value = ""; // Reset dropdown prodi
@@ -230,6 +261,14 @@ form.addEventListener("submit", async (e) => { // UBAH ke async untuk menunggu F
   
   // Reset tombol setelah simpan/update
   btnSimpan.textContent = "Simpan"; 
+});
+
+// ------------------- NONAKTIFKAN SUBMIT DENGAN ENTER -------------------
+form.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    e.preventDefault(); // Cegah aksi submit
+    return false;
+  }
 });
 
 // ------------------- RESET FORM -------------------
@@ -262,13 +301,25 @@ tbody.addEventListener("click", (e) => {
       elIPK.value = item.ipk || '';              // DATA BARU
       elCatatan.value = item.catatan || '';      // DATA BARU
       // Tampilkan info gambar
-      document.getElementById("gambar-preview").textContent = item.gambar ? "Foto sudah terlampir (Ganti file untuk upload baru)" : "Belum ada foto terlampir.";
-      elNama.focus();
+      document.getElementById("gambar-preview").textContent = item.gambar
+        ? "📸 Foto sudah ada — boleh dipertahankan atau diganti."
+        : "⚠️ Belum ada foto — unggah foto untuk melanjutkan edit.";
+
 
       // Ubah teks tombol menjadi Update
-      btnSimpan.textContent = "Update"; 
+      btnSimpan.textContent = "Perbarui"; 
+      // Scroll halus ke posisi form, dikurangi tinggi header
+      const yOffset = -100; // misal header kamu setinggi 100px
+      const y = form.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
     }
   }
+
+  // 🔹 Helper untuk tampilkan alert jumlah data terhapus
+  function showDeleteAlert(count) {
+    alert(`Berhasil menghapus ${count} data!`);
+  }
+
 
   if (delId) {
     // DELETE DATA
@@ -276,7 +327,8 @@ tbody.addEventListener("click", (e) => {
     if (confirm("Yakin hapus data ini?")) {
       data = data.filter(x => x.id !== idNum);
       saveData(data);
-      render();
+      syncAndRender();
+      showDeleteAlert(1);
     }
   }
 });
@@ -317,7 +369,7 @@ function searchData() {
       .includes(filter)
   );
   currentPage = 1;
-  render();
+  syncAndRender();
 }
 
 
@@ -396,7 +448,8 @@ document.getElementById("clearAllBtn").addEventListener("click", () => {
     document.getElementById("filterAngkatan").innerHTML = '<option value="">Semua Angkatan</option>';
     document.getElementById("filterProdi").innerHTML = '<option value="">Semua Prodi</option>';
 
-    render();
+    syncAndRender();
+    showDeleteAlert(deletedCount);
   }
 });
 
@@ -526,7 +579,7 @@ function importCSV(text) {
   });
 
   saveData(data);
-  render();
+  syncAndRender();
 }
 
 
@@ -563,7 +616,7 @@ function importExcel(rows) {
   });
 
   saveData(data);
-  render();
+  syncAndRender();
 }
 
 // --------------------- FILTERING AND SORTING -----------------------
@@ -575,7 +628,7 @@ function applySort() {
   const sortOrder = document.getElementById("sortOrder").value;
 
   if (!sortBy) {
-    render();
+    syncAndRender();
     return;
   }
 
@@ -601,7 +654,7 @@ function applySort() {
   });
 
   currentPage = 1;
-  render();
+  syncAndRender();
 }
 
 const filterAngkatan = document.getElementById("filterAngkatan");
@@ -884,12 +937,11 @@ if (deleteSelectedBtn) {
       data = data.filter(item => !selectedIds.includes(item.id));
       saveData(data);
 
-      // Sinkronkan filteredData dengan kondisi filter yang aktif
-      filterData(); // panggil fungsi filter bawaan kamu
+      syncAndRender();
+      showDeleteAlert(selectedIds.length);
     }
   });
 }
-
 
 // === LOGOUT BUTTON ===
 const logoutBtn = document.getElementById("logoutBtn");
@@ -906,9 +958,8 @@ if (logoutBtn) {
 // === CEK STATUS LOGIN & INIT ===
 // HANYA RENDER JIKA isLggedIn === "true"
 if (localStorage.getItem("isLoggedIn") !== "true") {
-  alert("Silakan login terlebih dahulu!");
+  alert("Silahkan login terlebih dahulu!");
   window.location.href = "login.html";
 } else {
-  filteredData = [...data];
-  render();
+  syncAndRender();
 }

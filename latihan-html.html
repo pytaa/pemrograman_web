@@ -36,16 +36,16 @@
           </div>
   
           <div class="formInput">
-            <label for="prodi">Program Studi:</label>
-            <select id="prodi" required>
+            <label for="prodi">Program Studi:</label>
+            <select id="prodi" required>
                   <option value="" disabled selected>Pilih Program Studi</option>
                   <option value="Teknik Informatika">Teknik Informatika</option>
                   <option value="Teknik Industri">Teknik Industri</option>
                   <option value="Teknik Arsitektur">Teknik Arsitektur</option>
                   <option value="Manajemen">Manajemen</option>
                   <option value="Sistem Informasi">Sistem Informasi</option>
-              </select>
-          </div>
+            </select>
+          </div>
   
           <div class="formInput">
               <label for="angkatan">Angkatan (Tahun):</label>
@@ -176,24 +176,24 @@
       <!-- Tabel Daftar Mahasiswa -->
       <div class="table-container">
         <div class="table-wrapper">
-          <table cellpadding="5">
-            <thead>
-              <tr>
-                <th><input type="checkbox" id="selectAll"></th>
-                <th>Nama</th>
-                <th>NIM</th>
-                <th>Kelas</th>
-                <th>Program Studi</th>
+          <table cellpadding="5">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>Nama</th>
+                <th>NIM</th>
+                <th>Kelas</th>
+                <th>Program Studi</th>
                 <th>Angkatan</th> 
                 <th>Email</th> 
                 <th>IPK</th> 
                 <th>Catatan</th>
                 <th>Gambar</th> 
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
   
           <div class="table-footer">
             <div class="footer-left">
@@ -207,7 +207,7 @@
               <button id="deleteSelectedBtn" class="footer-btn danger-btn">Hapus Terpilih</button>
             </div>
           </div>
-        </div>
+        </div>
       </div>
 
       <!-- Tombol Ekspor (Floating) -->
@@ -223,22 +223,22 @@
           <p id="previewInfo" style="font-style: italic; color: #444;"></p>
           <div style="max-height: 400px; overflow:auto;">
             <table id="previewTable">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Nama</th>
-                  <th>NIM</th>
-                  <th>Kelas</th>
-                  <th>Program Studi</th>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>NIM</th>
+                  <th>Kelas</th>
+                  <th>Program Studi</th>
                   <th>Angkatan</th> 
                   <th>Email</th> 
                   <th>IPK</th>
                   <th>Catatan</th>
-                  <th>Foto</th>                 
+                  <th>Foto</th> 
                 </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
           <div style="text-align:right; margin-top:10px;">
             <button id="confirmExportBtn">Konfirmasi Ekspor PDF</button>
