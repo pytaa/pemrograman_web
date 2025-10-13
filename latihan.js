@@ -454,171 +454,249 @@ document.getElementById("clearAllBtn").addEventListener("click", () => {
   }
 });
 
-// ------------------- IMPOR DATA -------------------
-// Ambil elemen
+// ------------------- IMPOR DATA (MODAL BARU) -------------------
 const modal = document.getElementById("uploadModal");
 const showBtn = document.getElementById("show-upload");
 const closeBtn = document.querySelector(".close");
+const uploadBtn = document.getElementById("btn-upload");
+const cancelBtn = document.getElementById("btn-cancel-upload");
+const fileInput = document.getElementById("csvFile");
+const fileList = document.getElementById("fileList");
+
+let selectedFiles = []; 
 
 // Buka modal
 showBtn.addEventListener("click", () => {
   modal.style.display = "block";
 });
 
-// Tutup modal (klik X)
-closeBtn.addEventListener("click", () => {
+// Tutup modal
+cancelBtn.addEventListener("click", () => {
+  fileInput.value = "";
+  fileList.innerHTML = "";
   modal.style.display = "none";
+  selectedFiles = []; // BARU: Reset state file
 });
 
-// Tutup modal (klik di luar kotak)
-window.addEventListener("click", (event) => {
-  if (event.target === modal) {
+closeBtn.addEventListener("click", () => {
+    fileInput.value = "";
+    fileList.innerHTML = "";
     modal.style.display = "none";
+    selectedFiles = []; // BARU: Reset state file
+});
+
+window.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    fileInput.value = "";
+    fileList.innerHTML = "";
+    modal.style.display = "none";
+    selectedFiles = []; // BARU: Reset state file
   }
 });
 
-// Upload CSV
-// Upload CSV atau Excel
-// ------------------- IMPORT CSV / EXCEL -------------------
-document.getElementById("btn-upload").addEventListener("click", () => {
-  const fileInput = document.getElementById("csvFile");
-  const file = fileInput.files[0];
+// Preview daftar file
+// Preview daftar file
+fileInput.addEventListener("change", () => {
+    const newlySelected = Array.from(fileInput.files); 
+    const newUniqueFiles = newlySelected.filter(newFile => 
+        !selectedFiles.some(existingFile => existingFile.name === newFile.name && existingFile.size === newFile.size)
+    );
+    
+    selectedFiles = [...selectedFiles, ...newUniqueFiles];
 
-  if (!file) {
-    alert("Pilih file terlebih dahulu!");
+    const dt = new DataTransfer();
+    selectedFiles.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files; 
+    
+    fileList.innerHTML = "";
+    if (selectedFiles.length === 0) {
+        fileList.textContent = "Tidak ada file dipilih.";
+        return;
+    }
+    
+    selectedFiles.forEach((file, i) => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <div style="display:flex; justify-content: space-between; align-items: center; padding: 5px 0;">
+            <span>${i + 1}. ${file.name}</span>
+            <button type="button" data-remove="${i}" style="margin-left: 10px; background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Hapus</button>
+          </div>
+        `;
+        fileList.appendChild(div);
+    });
+
+    fileInput.value = ""; 
+});
+
+// Hapus file tertentu
+fileList.addEventListener("click", (e) => {
+  if (e.target.dataset.remove !== undefined) {
+    const idx = Number(e.target.dataset.remove);
+
+    selectedFiles.splice(idx, 1); 
+
+    const dt = new DataTransfer();
+    selectedFiles.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
+
+    renderFileList(); 
+  }
+});
+
+function renderFileList() {
+    fileList.innerHTML = "";
+    if (selectedFiles.length === 0) {
+        fileList.textContent = "Tidak ada file dipilih.";
+        return;
+    }
+    selectedFiles.forEach((file, i) => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <div style="display:flex; justify-content: space-between; align-items: center; padding: 5px 0;">
+            <span>${i + 1}. ${file.name}</span>
+            <button type="button" data-remove="${i}" style="margin-left: 10px; background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Hapus</button>
+          </div>
+        `;
+        fileList.appendChild(div);
+    });
+}
+
+// --- IMPOR CSV ---
+function importCSV(csvText) {
+  const rows = csvText.trim().split("\n").map(r => r.split(","));
+  const header = rows.shift(); // buang baris header kalau ada
+  let count = 0;
+
+  rows.forEach(cols => {
+    if (cols.length < 7) return; // pastikan minimal ada kolom utama
+
+    const [nama, nim, kelas, prodi, angkatan, email, ipk, catatan] = cols.map(c => c.trim());
+
+    const newMahasiswa = {
+      id: autoId++,
+      nama,
+      nim,
+      kelas,
+      prodi,
+      angkatan,
+      email,
+      ipk,
+      catatan,
+      gambar: "" // default tanpa gambar
+    };
+
+    // Tambahkan data baru ke array data yang sudah ada
+    data.push(newMahasiswa);
+    count++;
+  });
+
+  saveData(data);
+  return count;
+}
+
+// --- IMPOR EXCEL ---
+function importExcel(rows) {
+  let count = 0;
+  for (let i = 1; i < rows.length; i++) { // lewati baris header
+    const row = rows[i];
+    if (!row || row.length < 7) continue;
+
+    const [nama, nim, kelas, prodi, angkatan, email, ipk, catatan] = row.map(c => String(c || "").trim());
+
+    const newMahasiswa = {
+      id: autoId++,
+      nama,
+      nim,
+      kelas,
+      prodi,
+      angkatan,
+      email,
+      ipk,
+      catatan,
+      gambar: ""
+    };
+
+    data.push(newMahasiswa);
+    count++;
+  }
+
+  saveData(data);
+  return count;
+}
+
+// Tombol Unggah (bisa beberapa file sekaligus)
+uploadBtn.addEventListener("click", async () => {
+  const files = selectedFiles;
+  if (files.length === 0) {
+    alert("Pilih minimal satu file terlebih dahulu!");
     return;
   }
 
-  const fileName = file.name.toLowerCase();
+  const modalContent = document.querySelector(".modal-content");
 
-  // Jika CSV
-  if (fileName.endsWith(".csv")) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      importCSV(e.target.result);
-      modal.style.display = "none";
-    };
-    reader.readAsText(file);
+  // Tambah elemen loading text
+  const loadingText = document.createElement("p");
+  loadingText.id = "loadingText";
+  loadingText.textContent = "Sedang memproses file, mohon tunggu...";
+  loadingText.style.color = "#333";
+  loadingText.style.fontSize = "14px";
+  loadingText.style.textAlign = "center";
+  loadingText.style.marginTop = "10px";
+  modalContent.appendChild(loadingText);
+
+  const progressText = document.createElement("p");
+  progressText.id = "progressText";
+  progressText.style.textAlign = "center";
+  progressText.style.fontSize = "13px";
+  progressText.style.marginTop = "5px";
+  modalContent.appendChild(progressText);
+
+  let totalImported = 0;
+
+  // Proses setiap file satu per satu
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    progressText.textContent = `📦 Memproses file ${i + 1} dari ${files.length}: ${file.name}`;
+
+    const ext = file.name.toLowerCase();
+
+    try {
+      if (ext.endsWith(".csv")) {
+        const text = await file.text();
+        totalImported += importCSV(text);
+      } else if (ext.endsWith(".xls") || ext.endsWith(".xlsx")) {
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: "array" });
+        const sheet = workbook.SheetNames[0];
+        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { header: 1 });
+        totalImported += importExcel(rows);
+      } else {
+        console.warn(`File ${file.name} diabaikan (format tidak didukung).`);
+      }
+    } catch (err) {
+      console.error("Gagal memproses file:", file.name, err);
+    }
   }
-  // Jika Excel (xls / xlsx)
-  else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const dataExcel = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(dataExcel, { type: "array" });
 
-      // Ambil sheet pertama
-      const firstSheet = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheet];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+  // Tunggu sebentar biar loading spinner kelihatan
+  await new Promise(resolve => setTimeout(resolve, 400));
 
-      importExcel(jsonData);
-      modal.style.display = "none";
-    };
-    reader.readAsArrayBuffer(file);
-  } else {
-    alert("Format file tidak didukung! Gunakan CSV, XLS, atau XLSX.");
-  }
+  alert(`✅ Berhasil mengimpor ${totalImported} data mahasiswa dari ${files.length} file!`);
+
+  // === Hapus indikator & reset modal ===
+  loadingText.remove();
+  progressText.remove();
+  uploadBtn.disabled = false;
+  uploadBtn.textContent = "Unggah";
+  cancelBtn.disabled = false;
+  fileInput.disabled = false;
+  modal.style.display = "none";
+  fileInput.value = "";
+  fileList.innerHTML = "";
+  selectedFiles = [];
+  syncAndRender(true);
 });
 
-function formatIpk(rawIpk) {
-    // 1. Handle tipe data Number (dari input manual atau XLSX)
-    if (typeof rawIpk === 'number') {
-        return rawIpk.toFixed(2); // Menangani 3.9 -> "3.90" atau 4 -> "4.00"
-    } 
-
-    let ipkString = String(rawIpk || "").trim();
-    // 2. Ganti koma dengan titik (Solusi CSV)
-    ipkString = ipkString.replace(/,/g, '.');
-
-    // 3. Handle angka bulat (e.g., "4" -> "4.00")
-    if (/^\d$/.test(ipkString)) {
-        return ipkString + '.00';
-    }
-    
-    // 4. Handle satu desimal (e.g., "3.9" -> "3.90")
-    if (/^\d\.\d$/.test(ipkString)) {
-        return ipkString + '0';
-    }
-    
-    // 5. Kembalikan format yang sudah benar (e.g., "4.00", "3.85")
-    return ipkString;
-}
-
-
-// 🔹 Fungsi Import CSV
-function importCSV(text) {
-  const rows = text.split("\n").map(r => r.trim()).filter(r => r.length > 0);
-
-  rows.forEach((row, index) => {
-    if (index === 0) return; // skip header
-    
-    let cols = row.split(",");
-    if (cols.length < 7) { // Coba deteksi semicolon jika koma gagal
-        cols = row.split(";"); 
-    }
-    
-    if (cols.length < 7) return; 
-
-    // Pastikan ini destructuring 8 elemen data (Nama s.d. Foto)
-    const [nama, nim, kelas, prodi, angkatan, email, rawIpk, catatan = ''] = cols.map(c => c.trim());
-
-    // --- GUNAKAN FUNGSI PEMBATU IPK YANG BARU ---
-    let ipk = formatIpk(rawIpk); 
-    // ---------------------------------------------
-    
-    if (!validateForm(nama, nim, kelas, prodi, angkatan, email, ipk)) {
-        console.warn(`Baris ${index + 1} dilewati karena data tidak valid: ${ipk}`);
-        return;
-    }
-    if (data.some(m => m.nim === nim)) return;
-
-    data.push({
-      id: autoId++,
-      nama, nim, kelas, prodi, angkatan, email, ipk, catatan, gambar: '' 
-    });
-  });
-
-  saveData(data);
-  syncAndRender();
-}
-
-
-// 🔹 Fungsi Import Excel
-function importExcel(rows) {
-  rows.forEach((row, index) => {
-    if (index === 0) return; // skip header
-
-    const [nama, nim, kelas, prodi, angkatan, email, rawIpk, catatan = ""] = row;
-    
-    // --- GUNAKAN FUNGSI PEMBATU ---
-    let ipk = formatIpk(rawIpk);
-    // ------------------------------
-
-    // Validasi menggunakan nilai 'ipk' yang sudah diformat
-    if (!validateForm(String(nama), String(nim), String(kelas), String(prodi), String(angkatan), String(email), ipk)) {
-        console.warn(`Baris ${index + 1} dilewati karena data tidak valid.`);
-        return;
-    }
-    if (data.some(m => m.nim === String(nim).trim())) return;
-
-    data.push({
-      id: autoId++,
-      nama: String(nama).trim(),
-      nim: String(nim).trim(),
-      kelas: String(kelas || "").trim(),
-      prodi: String(prodi || "").trim(),
-      angkatan: String(angkatan || "2025").trim(), 
-      email: String(email || "").trim(),         
-      ipk: ipk,             
-      catatan: String(catatan || "").trim(),     
-      gambar: ''
-    });
-  });
-
-  saveData(data);
-  syncAndRender();
-}
 
 // --------------------- FILTERING AND SORTING -----------------------
 // Sort berdasarkan Nama atau NIM
