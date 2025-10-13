@@ -161,6 +161,27 @@ function validateForm(nama, nim, kelas, prodi, angkatan, email, ipk) {
     return true;
 }
 
+// ------------------- FUNGSI VALIDASI DUPLIKASI (BARU) -------------------
+function checkDuplication(idToExclude, nim, email) {
+    // Cari data yang NIM atau Email-nya sama dengan input BARU,
+    // TETAPI pastikan ID-nya BUKAN data yang sedang di-EDIT
+    const duplicateNim = data.find(
+        (m) => m.nim === nim && m.id !== idToExclude
+    );
+    const duplicateEmail = data.find(
+        (m) => m.email === email && m.id !== idToExclude
+    );
+
+    if (duplicateNim) {
+        alert(`Gagal! NIM '${nim}' sudah terdaftar pada data lain.`);
+        return false;
+    }
+    if (duplicateEmail) {
+        alert(`Gagal! Email '${email}' sudah terdaftar pada data lain.`);
+        return false;
+    }
+    return true; // Tidak ada duplikasi ditemukan
+}
 
 // ------------------- FORM SUBMIT (CREATE / UPDATE) -------------------
 form.addEventListener("submit", async (e) => { // UBAH ke async untuk menunggu FileReader
@@ -178,6 +199,11 @@ form.addEventListener("submit", async (e) => { // UBAH ke async untuk menunggu F
   const file = elGambar.files[0];         // BARU
 
   if (!validateForm(nama, nim, kelas, prodi, angkatan, email, ipk)) return;
+
+  const idNum = idVal ? Number(idVal) : 0; // 0 jika ini data baru
+  if (!checkDuplication(idNum, nim, email)) {
+      return; // Hentikan proses jika ada duplikasi
+  }
   
   // --- Proses Upload Gambar (BARU) ---
   let gambarBase64 = idVal ? (data.find(x => x.id === Number(idVal))?.gambar || '') : '';
@@ -564,13 +590,25 @@ function renderFileList() {
 // --- IMPOR CSV ---
 function importCSV(csvText) {
   const rows = csvText.trim().split("\n").map(r => r.split(","));
-  const header = rows.shift(); // buang baris header kalau ada
+  const header = rows.shift();
   let count = 0;
-
+  let skippedCount = 0;
   rows.forEach(cols => {
-    if (cols.length < 7) return; // pastikan minimal ada kolom utama
+    if (cols.length < 7) return; 
+    const [nama, nim, kelas, prodi, angkatan, email, ipkRaw, catatan] = cols.map(c => c.trim());
+    const ipk = isNaN(parseFloat(ipkRaw)) ? "0.00" : parseFloat(ipkRaw).toFixed(2);
 
-    const [nama, nim, kelas, prodi, angkatan, email, ipk, catatan] = cols.map(c => c.trim());
+    // ⛔️ VALIDASI DUPLIKASI NIM/EMAIL ⛔️
+    const isDuplicate = data.some(
+      (m) => m.nim === nim || m.email === email
+    );
+    
+    if (isDuplicate) {
+        console.warn(`Data impor diabaikan karena duplikasi (NIM: ${nim} atau Email: ${email}).`);
+        skippedCount++;
+        return; 
+    }
+    // ------------------------------------
 
     const newMahasiswa = {
       id: autoId++,
@@ -582,27 +620,38 @@ function importCSV(csvText) {
       email,
       ipk,
       catatan,
-      gambar: "" // default tanpa gambar
+      gambar: "" 
     };
-
-    // Tambahkan data baru ke array data yang sudah ada
     data.push(newMahasiswa);
     count++;
   });
-
   saveData(data);
-  return count;
+  // Kembalikan objek yang berisi jumlah data yang diimpor dan yang diabaikan
+  return { imported: count, skipped: skippedCount }; 
 }
 
 // --- IMPOR EXCEL ---
 function importExcel(rows) {
   let count = 0;
-  for (let i = 1; i < rows.length; i++) { // lewati baris header
+  let skippedCount = 0; 
+  for (let i = 1; i < rows.length; i++) { 
     const row = rows[i];
     if (!row || row.length < 7) continue;
+    const [nama, nim, kelas, prodi, angkatan, email, ipkRaw, catatan] = row.map(c => String(c || "").trim());
+    const ipk = isNaN(parseFloat(ipkRaw)) ? "0.00" : parseFloat(ipkRaw).toFixed(2);
 
-    const [nama, nim, kelas, prodi, angkatan, email, ipk, catatan] = row.map(c => String(c || "").trim());
+    // ⛔️ VALIDASI DUPLIKASI NIM/EMAIL ⛔️
+    const isDuplicate = data.some(
+      (m) => m.nim === nim || m.email === email
+    );
 
+    if (isDuplicate) {
+        console.warn(`Data impor diabaikan karena duplikasi (NIM: ${nim} atau Email: ${email}).`);
+        skippedCount++;
+        continue; 
+    }
+    // ------------------------------------
+    
     const newMahasiswa = {
       id: autoId++,
       nama,
@@ -615,13 +664,11 @@ function importExcel(rows) {
       catatan,
       gambar: ""
     };
-
     data.push(newMahasiswa);
     count++;
   }
-
   saveData(data);
-  return count;
+  return { imported: count, skipped: skippedCount }; 
 }
 
 // Tombol Unggah (bisa beberapa file sekaligus)
@@ -632,58 +679,79 @@ uploadBtn.addEventListener("click", async () => {
     return;
   }
 
+  // === Aktifkan indikator loading ===
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = "⏳ Mengunggah...";
+  cancelBtn.disabled = true;
+  fileInput.disabled = true;
+
   const modalContent = document.querySelector(".modal-content");
 
-  // Tambah elemen loading text
-  const loadingText = document.createElement("p");
-  loadingText.id = "loadingText";
-  loadingText.textContent = "Sedang memproses file, mohon tunggu...";
-  loadingText.style.color = "#333";
-  loadingText.style.fontSize = "14px";
-  loadingText.style.textAlign = "center";
-  loadingText.style.marginTop = "10px";
-  modalContent.appendChild(loadingText);
+  // Buat indikator loading (kalau belum ada)
+  let loadingText = document.getElementById("loadingText");
+  if (!loadingText) {
+    loadingText = document.createElement("p");
+    loadingText.id = "loadingText";
+    loadingText.textContent = "Sedang memproses file, mohon tunggu...";
+    loadingText.style.color = "#333";
+    loadingText.style.fontSize = "14px";
+    loadingText.style.textAlign = "center";
+    loadingText.style.marginTop = "10px";
+    modalContent.appendChild(loadingText);
+  }
 
-  const progressText = document.createElement("p");
-  progressText.id = "progressText";
-  progressText.style.textAlign = "center";
-  progressText.style.fontSize = "13px";
-  progressText.style.marginTop = "5px";
-  modalContent.appendChild(progressText);
+  let progressText = document.getElementById("progressText");
+  if (!progressText) {
+    progressText = document.createElement("p");
+    progressText.id = "progressText";
+    progressText.style.textAlign = "center";
+    progressText.style.fontSize = "13px";
+    progressText.style.marginTop = "5px";
+    modalContent.appendChild(progressText);
+  }
 
   let totalImported = 0;
+  let totalSkipped = 0;
 
-  // Proses setiap file satu per satu
+  // === Loop semua file ===
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     progressText.textContent = `📦 Memproses file ${i + 1} dari ${files.length}: ${file.name}`;
 
     const ext = file.name.toLowerCase();
+    let result = { imported: 0, skipped: 0 };
 
     try {
       if (ext.endsWith(".csv")) {
         const text = await file.text();
-        totalImported += importCSV(text);
+        result = importCSV(text);
       } else if (ext.endsWith(".xls") || ext.endsWith(".xlsx")) {
         const arrayBuffer = await file.arrayBuffer();
         const workbook = XLSX.read(arrayBuffer, { type: "array" });
         const sheet = workbook.SheetNames[0];
         const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { header: 1 });
-        totalImported += importExcel(rows);
+        result = importExcel(rows);
       } else {
         console.warn(`File ${file.name} diabaikan (format tidak didukung).`);
       }
     } catch (err) {
       console.error("Gagal memproses file:", file.name, err);
     }
+
+    totalImported += result.imported;
+    totalSkipped += result.skipped;
   }
 
-  // Tunggu sebentar biar loading spinner kelihatan
-  await new Promise(resolve => setTimeout(resolve, 400));
+  // Tunggu sedikit biar animasi terlihat
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-  alert(`✅ Berhasil mengimpor ${totalImported} data mahasiswa dari ${files.length} file!`);
+  let alertMessage = `✅ Berhasil mengimpor ${totalImported} data mahasiswa dari ${files.length} file!`;
+  if (totalSkipped > 0) {
+    alertMessage += `\n⚠️ ${totalSkipped} data diabaikan karena duplikasi NIM/Email.`;
+  }
+  alert(alertMessage);
 
-  // === Hapus indikator & reset modal ===
+  // === Bersihkan dan reset ===
   loadingText.remove();
   progressText.remove();
   uploadBtn.disabled = false;
@@ -694,9 +762,9 @@ uploadBtn.addEventListener("click", async () => {
   fileInput.value = "";
   fileList.innerHTML = "";
   selectedFiles = [];
+
   syncAndRender(true);
 });
-
 
 // --------------------- FILTERING AND SORTING -----------------------
 // Sort berdasarkan Nama atau NIM
