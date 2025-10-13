@@ -81,6 +81,41 @@ function render(list = filteredData) {
   if (selectAllCheckbox) selectAllCheckbox.checked = false;
 }
 
+function renderViewTable(list = data) {
+  if (!Array.isArray(list)) list = [];
+  tbody.innerHTML = "";
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginatedData = list.slice(start, end);
+
+  paginatedData.forEach((row, index) => {
+    const imgPreview = row.gambar
+      ? `<img src="${row.gambar}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover;">`
+      : "-";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${start + index + 1}</td>
+      <td>${row.nama}</td>
+      <td>${row.nim}</td>
+      <td>${row.kelas}</td>
+      <td>${row.prodi}</td>
+      <td>${row.angkatan || "-"}</td>
+      <td>${row.email || "-"}</td>
+      <td>${row.ipk || "-"}</td>
+      <td>${row.catatan || "-"}</td>
+      <td>${imgPreview}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Update footer info
+  const totalPages = Math.ceil(list.length / rowsPerPage);
+  document.getElementById("data-info").textContent = `${list.length} data`;
+  document.getElementById("pageInfo").textContent = `Halaman ${currentPage} / ${totalPages || 1}`;
+}
+
 //------------------- ATURAN TAMPILAN DATA -------------------
 function nextPage() {
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -396,9 +431,14 @@ function searchData() {
       .includes(filter)
   );
   currentPage = 1;
-  syncAndRender();
-}
 
+  const mode = localStorage.getItem("mode") || "view";
+  if (mode === "edit") {
+    render(filteredData);
+  } else {
+    renderViewTable(filteredData); // ✅ kirim hasil pencarian ke mode view
+  }
+}
 
 // Fitur Search tekan Enter
 input.addEventListener("keydown", function(e) {
@@ -411,10 +451,16 @@ input.addEventListener("keydown", function(e) {
 // klik tombol X untuk hapus teks dan tampilkan semua data
 clearBtn.addEventListener("click", () => {
   input.value = "";
-  searchData(); // tampilkan semua baris
+  const mode = localStorage.getItem("mode") || "view";
+
+  if (mode === "edit") {
+    render(data);
+  } else {
+    renderViewTable();
+  }
+
   input.focus();
 });
-
 
 // FILTER BERDASARKAN KELAS & PRODI
 document.getElementById("filterAngkatan").addEventListener("change", filterData);
@@ -1095,10 +1141,170 @@ if (logoutBtn) {
 }
 
 // === CEK STATUS LOGIN & INIT ===
-// HANYA RENDER JIKA isLggedIn === "true"
-if (localStorage.getItem("isLoggedIn") !== "true") {
-  alert("Silahkan login terlebih dahulu!");
-  window.location.href = "login.html";
+if (localStorage.getItem("isLoggedIn") === "true") {
+  enableEditMode(); // Jika sudah login
 } else {
-  syncAndRender();
+  enableViewMode(); // Jika belum login
+}
+syncAndRender();
+
+// ==================== MODE LIHAT vs EDIT ====================
+function enableViewMode() {
+  console.log("📖 Mode Lihat aktif");
+
+  const editOnlyElements = [
+    "#show-upload",
+    "#selectAllBtn",
+    "#deleteSelectedBtn",
+    "#clearAllBtn",
+    "#form-mahasiswa",
+  ];
+
+  editOnlyElements.forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) el.style.display = "none";
+  });
+
+  // 🔹 Cek status login
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (logoutBtn) {
+    const newBtn = logoutBtn.cloneNode(true);
+    logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
+
+        if (isLoggedIn) {
+      newBtn.textContent = "Logout";
+      newBtn.style.background = "#ff4b4b";
+      newBtn.style.color = "white";
+      newBtn.onclick = () => {
+        if (confirm("Yakin ingin logout?")) {
+          localStorage.removeItem("isLoggedIn");
+          localStorage.setItem("mode", "view");
+          enableViewMode();
+          modeSwitch.checked = false;
+          modeLabel.textContent = "Mode Lihat 📖";
+          alert("✅ Anda telah logout. Sekarang dalam Mode Lihat.");
+        }
+      };
+    } else {
+      newBtn.textContent = "Login";
+      newBtn.style.background = "white";
+      newBtn.style.color = "#021068";
+      newBtn.onclick = () => {
+        window.location.href = "login.html";
+      };
+    }
+  }
+
+  const tableHeader = document.querySelector("thead tr th:first-child");
+  if (tableHeader) tableHeader.textContent = "No";
+
+  const aksiHeader = document.querySelector("thead tr th:last-child");
+  if (aksiHeader && aksiHeader.textContent.trim().toLowerCase() === "aksi") {
+    aksiHeader.style.display = "none";
+  }
+
+  const aksiCells = document.querySelectorAll("#tbody td:last-child");
+  aksiCells.forEach(td => td.style.display = "none");
+
+  renderViewTable();
+}
+
+function enableEditMode() {
+  console.log("Mode Edit aktif");
+
+  const editOnlyElements = [
+    "#show-upload",
+    "#selectAllBtn",
+    "#deleteSelectedBtn",
+    "#clearAllBtn",
+    "#form-mahasiswa",
+  ];
+
+  editOnlyElements.forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) el.style.display = "";
+  });
+
+  // 🔹 Reset event lama dan pasang ulang event logout
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    const newBtn = logoutBtn.cloneNode(true);
+    logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
+    newBtn.textContent = "Logout";
+    newBtn.style.background = "#ff4b4b";
+    newBtn.style.color = "white";
+    newBtn.onclick = () => {
+      if (confirm("Yakin ingin logout?")) {
+        localStorage.removeItem("isLoggedIn");
+        localStorage.setItem("mode", "view");
+
+        // 🌟 Langsung ubah tampilan ke mode lihat tanpa redirect
+        enableViewMode();
+        modeSwitch.checked = false;
+        modeLabel.textContent = "Mode Lihat 📖";
+
+        alert("✅ Anda telah logout. Sekarang dalam Mode Lihat.");
+      }
+    };
+  }
+
+// Tampilkan kembali kolom "Aksi" saat Mode Edit
+const aksiHeader = document.querySelector("thead tr th:last-child");
+if (aksiHeader && aksiHeader.textContent.trim().toLowerCase() === "aksi") {
+  aksiHeader.style.display = "";
+}
+
+// Tampilkan kembali semua sel kolom aksi di body
+const aksiCells = document.querySelectorAll("#tbody td:last-child");
+aksiCells.forEach(td => td.style.display = "");
+
+  render();
+}
+
+// ==================== SWITCH MODE VIEW <-> EDIT ====================
+const modeSwitch = document.getElementById("modeSwitch");
+const modeLabel = document.getElementById("modeLabel");
+
+if (modeSwitch && modeLabel) {
+  modeSwitch.addEventListener("change", () => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+    if (modeSwitch.checked) {
+      // Jika user belum login, batalkan dan beri alert
+      if (!isLoggedIn) {
+        alert("❌ Anda harus login terlebih dahulu untuk masuk ke Mode Edit!");
+        modeSwitch.checked = false; // kembalikan toggle ke posisi semula
+        modeLabel.textContent = "Mode Lihat 📖";
+        return;
+      }
+
+      // Jika sudah login, aktifkan mode edit
+      enableEditMode();
+      localStorage.setItem("mode", "edit");
+      modeLabel.textContent = "Mode Edit";
+    } else {
+      // Kembali ke mode lihat
+      enableViewMode();
+      localStorage.setItem("mode", "view");
+      modeLabel.textContent = "Mode Lihat";
+    }
+  });
+
+  // Saat halaman dimuat, sesuaikan dengan mode tersimpan
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedMode = localStorage.getItem("mode") || "view";
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+    if (savedMode === "edit" && isLoggedIn) {
+      modeSwitch.checked = true;
+      enableEditMode();
+      modeLabel.textContent = "Mode Edit";
+    } else {
+      modeSwitch.checked = false;
+      enableViewMode();
+      modeLabel.textContent = "Mode Lihat";
+    }
+  });
 }

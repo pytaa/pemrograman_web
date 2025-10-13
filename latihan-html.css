@@ -18,6 +18,11 @@ body {
   font-family: Arial, sans-serif;
 }
 
+body.view-mode #form-mahasiswa {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .header {
   width: 100%;
   background: linear-gradient(170deg, #021068, #1a2777, #0634ff);
@@ -98,7 +103,6 @@ p {
 .container {
   width: 90%;
   max-width: 90%;
-  padding: 25px 0 20px 0;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
@@ -118,6 +122,7 @@ p {
   box-sizing: border-box;
   margin: 0 auto;
   margin-top: 15px;
+  margin-bottom: 15px;
   max-width: 90%; 
 }
 
@@ -504,7 +509,7 @@ button:hover {
   flex-wrap: wrap;
   width: 90%;
   box-sizing: border-box;
-  margin: 0 auto;
+  margin: 20px auto;
   max-width: 90%;
 }
 
@@ -970,4 +975,68 @@ td button:hover {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+/* Switch container */
+.switch-mode {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+  margin-right: 10px;
+  align-items: center;
+}
+
+/* Hilangkan checkbox default */
+.switch-mode input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Slider (bagian latar belakang) */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 26px;
+}
+
+/* Bulatan di dalam switch */
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+/* Saat aktif (Edit mode) */
+input:checked + .slider {
+  background-color: #007bff; /* biru */
+}
+
+/* Geser bulatan ke kanan saat aktif */
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Label teks di samping switch */
+.mode-label {
+  font-weight: 600;
+  color: white;
+  margin-right: 15px;
 }
