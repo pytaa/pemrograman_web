@@ -75,6 +75,8 @@ function render(list = filteredData) {
   document.getElementById("data-info").textContent =
     `${totalFiltered} data`;
 
+  document.getElementById("pageInfo").textContent = `Halaman ${currentPage} / ${totalPages || 1}`;
+  
   updateFilterOptions();
   if (selectAllCheckbox) selectAllCheckbox.checked = false;
 }
@@ -850,6 +852,43 @@ tbody.addEventListener("change", (e) => {
     }
 });
 // ------------------- AKHIR LOGIKA CHECKBOX BARU -------------------
+
+// === TOMBOL PILIH SEMUA DAN HAPUS TERPILIH DI FOOTER ===
+const selectAllBtn = document.getElementById("selectAllBtn");
+const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+
+if (selectAllBtn) {
+  selectAllBtn.addEventListener("click", () => {
+    const allCheckboxes = document.querySelectorAll(".row-checkbox");
+    const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+
+    allCheckboxes.forEach(cb => {
+      cb.checked = !allChecked;
+      toggleRowContrast(cb);
+    });
+    selectAllCheckbox.checked = !allChecked;
+  });
+}
+
+if (deleteSelectedBtn) {
+  deleteSelectedBtn.addEventListener("click", () => {
+    const selectedIds = Array.from(document.querySelectorAll(".row-checkbox:checked"))
+      .map(cb => Number(cb.value));
+
+    if (selectedIds.length === 0) {
+      alert("Tidak ada data yang dipilih!");
+      return;
+    }
+
+    if (confirm(`Yakin hapus ${selectedIds.length} data terpilih?`)) {
+      data = data.filter(item => !selectedIds.includes(item.id));
+      saveData(data);
+
+      // Sinkronkan filteredData dengan kondisi filter yang aktif
+      filterData(); // panggil fungsi filter bawaan kamu
+    }
+  });
+}
 
 
 // === LOGOUT BUTTON ===

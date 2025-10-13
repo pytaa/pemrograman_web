@@ -5,7 +5,7 @@
 }
 
 main, section, .container, .table-container, .filter-sort-wrapper, #form-mahasiswa {
-  width: 90%;
+  width: 100%;
   max-width: 90%;
   margin: 0 auto; /* Biar tetap di tengah */
   box-sizing: border-box;
@@ -602,10 +602,10 @@ td button {
 }
 
 td button[data-edit] {
-      background-color: #ffc107;
-      color: #333;
-      margin-right: 5px;
-    }
+    background-color: #ffc107;
+    color: #333;
+    margin-right: 5px;
+}
 
 td button[data-del] {
     background-color: #e9293d;
@@ -620,7 +620,7 @@ td button:hover {
 /* === FOOTER PAGINATION DI BAWAH TABEL === */
 .table-footer {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   gap: 15px;
   padding: 12px;
@@ -628,6 +628,23 @@ td button:hover {
   border-top: 1px solid #ddd;
   border-radius: 0 0 12px 12px;
   color: white;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#deleteSelectedBtn {
+  background: #ffc107;
+  color: #000;
 }
 
 .page-btn {
@@ -796,7 +813,7 @@ td button:hover {
 .reset-btn {
   background-color: #ffffff;
   border: none;
-  border-radius: 5px;
+  border-radius: 15px;
   padding: 6px 12px;
   margin-left: 10px;
   cursor: pointer;
