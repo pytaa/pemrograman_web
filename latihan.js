@@ -109,12 +109,20 @@ document.getElementById("resetFilterBtn").addEventListener("click", () => {
   document.getElementById("filterAngkatan").value = "";
   document.getElementById("filterProdi").value = "";
 
+  // 🔹 Reset sorting dropdown juga
+  document.getElementById("sortBy").value = "";
+  document.getElementById("sortOrder").value = "asc"; // default urutan naik
+
   // Reset variabel global
   currentPage = 1;
+
+  // 🔹 Reset data hasil sort ke urutan asli
+  filteredData = [...data];
 
   // Render ulang tabel
   syncAndRender();
 });
+
 
 //------------------- JUMLAH DATA PER HALAMAN -------------------
 document.getElementById("rowsPerPage").addEventListener("change", (e) => {
@@ -614,8 +622,6 @@ function importExcel(rows) {
 
 // --------------------- FILTERING AND SORTING -----------------------
 // Sort berdasarkan Nama atau NIM
-
-// DEFINISI FUNGSI applySort HARUS DI SINI AGAR BISA DIPANGGIL OLEH EVENT LISTENERS DI BAWAH
 function applySort() {
   const sortBy = document.getElementById("sortBy").value;
   const sortOrder = document.getElementById("sortOrder").value;
@@ -629,7 +635,6 @@ function applySort() {
     let valA = a[sortBy];
     let valB = b[sortBy];
 
-    // Untuk NIM jangan ubah ke Number biar 0 depan tidak hilang
     if (sortBy === "nim") {
       valA = String(valA);
       valB = String(valB);
@@ -647,7 +652,8 @@ function applySort() {
   });
 
   currentPage = 1;
-  syncAndRender();
+  render(filteredData); 
+  updateSummary();      
 }
 
 const filterAngkatan = document.getElementById("filterAngkatan");
