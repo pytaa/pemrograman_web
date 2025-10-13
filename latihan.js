@@ -606,7 +606,7 @@ const filterAngkatan = document.getElementById("filterAngkatan");
 const filterProdi = document.getElementById("filterProdi");
 
 document.getElementById("sortBy").innerHTML = `
-    <option value="">-- Urutkan --</option>
+    <option value="">Urutkan</option>
     <option value="nama">Nama</option>
     <option value="nim">NIM</option>
     <option value="angkatan">Angkatan</option>

@@ -149,7 +149,7 @@
           <!-- (opsional) sort -->
           <div class="sort-section">
             <select id="sortBy">
-              <option value="">-- Urutkan --</option>
+              <option value="">Urutkan</option>
               <option value="nama">Nama</option>
               <option value="nim">NIM</option>
             </select>
@@ -161,7 +161,6 @@
 
           <button id="resetFilterBtn" class="reset-btn">Reset Filter</button>
         </div>
-
         <div class="filter-right-wrap">
           <div class="search-container">
             <input type="text" id="searchInput" placeholder="Cari...">
@@ -170,35 +169,38 @@
 
           <button class="danger-btn" id="clearAllBtn">Hapus Semua</button>
         </div>
+
       </div>
 
       
       <!-- Tabel Daftar Mahasiswa -->
-      <div class="table-wrapper">
-        <table cellpadding="5">
-          <thead>
-            <tr>
-              <th><input type="checkbox" id="selectAll"></th>
-              <th>Nama</th>
-              <th>NIM</th>
-              <th>Kelas</th>
-              <th>Program Studi</th>
-              <th>Angkatan</th> 
-              <th>Email</th> 
-              <th>IPK</th> 
-              <th>Catatan</th>
-              <th>Gambar</th> 
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="tbody">
-                      </tbody>
-        </table>
-      </div>
-
-      <div class="pagination">
-        <button id="prevPageBtn">Prev</button>
-        <button id="nextPageBtn">Next</button>
+      <div class="table-container">
+        <div class="table-wrapper">
+          <table cellpadding="5">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>Nama</th>
+                <th>NIM</th>
+                <th>Kelas</th>
+                <th>Program Studi</th>
+                <th>Angkatan</th> 
+                <th>Email</th> 
+                <th>IPK</th> 
+                <th>Catatan</th>
+                <th>Gambar</th> 
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+  
+          <div class="table-footer">
+            <button id="prevPageBtn" class="page-btn">Prev</button>
+            <span id="pageInfo">Halaman 1 / 1</span>
+            <button id="nextPageBtn" class="page-btn">Next</button>
+          </div>
+        </div>
       </div>
 
       <!-- Tombol Ekspor (Floating) -->
