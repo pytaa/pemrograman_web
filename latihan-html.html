@@ -12,6 +12,20 @@
     <button id="logoutBtn">Logout</button>
   </header>
   
+  <section class="summary">
+    <div class="sum-left">
+      <div id="totalData">Total Data: 0</div>
+      <div id="rataIPK">Rata-rata IPK: 0.00</div>
+    </div>
+    <div class="sum-right">
+      <button type="button" id="exportJSON">Ekspor JSON</button>
+      <button type="button" id="exportCSV">Ekspor CSV</button>
+      <button type="button" id="exportPDF">Ekspor PDF</button>
+      <button type="button" id="show-upload">Impor</button>
+      <button type="button" id="print">Cetak</button>
+    </div>
+  </section>
+
   <section class="container">
     <div>
       <!-- FORM INPUT MAHASISWA -->
@@ -97,15 +111,6 @@
         </div>
       </form>
 
-      
-
-      <!------------------- Upload CSV ------------------>
-      <!-- Tombol Awal -->
-      <div class="upload-section">
-        <p>Atau</p>
-        <button type="button" id="show-upload">Unggah Data</button>
-      </div>
-
       <!-- Popup Modal -->
       <div id="uploadModal" class="modal">
         <div class="modal-content">
@@ -119,144 +124,137 @@
   </section>
 
 
-      <!-- Tabel untuk menampilkan data mahasiswa -->
-      <div class="filter-sort-wrapper">
-        <div class="filter-left-wrap">
-          <div id="data-info">0 Data</div>
+  <!-- Tabel untuk menampilkan data mahasiswa -->
+  <div class="filter-sort-wrapper">
+    <div class="filter-left-wrap">
+      <div id="data-info">0 Data</div>
 
-          <!-- Jumlah per halaman -->
-          <select id="rowsPerPage">
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-          </select>
+      <!-- Jumlah per halaman -->
+      <select id="rowsPerPage">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+      </select>
 
-          <!-- Filter Prodi & Angkatan (sesuaikan opsi/isi dinamis jika perlu) -->
-          <select id="filterProdi">
-            <option value="">Semua Prodi</option>
-            <option value="Teknik Informatika">Teknik Informatika</option>
-            <option value="Sistem Informasi">Sistem Informasi</option>
-          </select>
+      <!-- Filter Prodi & Angkatan (sesuaikan opsi/isi dinamis jika perlu) -->
+      <select id="filterProdi">
+        <option value="">Semua Prodi</option>
+        <option value="Teknik Informatika">Teknik Informatika</option>
+        <option value="Sistem Informasi">Sistem Informasi</option>
+      </select>
 
-          <select id="filterAngkatan">
-            <option value="">Semua Angkatan</option>
-            <option value="2021">2021</option>
-            <option value="2022">2022</option>
-            <option value="2023">2023</option>
-          </select>
+      <select id="filterAngkatan">
+        <option value="">Semua Angkatan</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+      </select>
 
-          <!-- (opsional) sort -->
-          <div class="sort-section">
-            <select id="sortBy">
-              <option value="">Urutkan</option>
-              <option value="nama">Nama</option>
-              <option value="nim">NIM</option>
-            </select>
-            <select id="sortOrder">
-              <option value="asc">Menaik</option>
-              <option value="desc">Menurun</option>
-            </select>
-          </div>
-
-          <button id="resetFilterBtn" class="reset-btn">Reset Filter</button>
-        </div>
-        <div class="filter-right-wrap">
-          <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Cari...">
-            <span class="icon" id="clearBtn">&times;</span>
-          </div>
-
-          <button class="danger-btn" id="clearAllBtn">Hapus Semua</button>
-        </div>
-
+      <!-- (opsional) sort -->
+      <div class="sort-section">
+        <select id="sortBy">
+          <option value="">Urutkan</option>
+          <option value="nama">Nama</option>
+          <option value="nim">NIM</option>
+        </select>
+        <select id="sortOrder">
+          <option value="asc">Menaik</option>
+          <option value="desc">Menurun</option>
+        </select>
       </div>
 
-      
-      <!-- Tabel Daftar Mahasiswa -->
-      <div class="table-container">
-        <div class="table-wrapper">
-          <table cellpadding="5">
-            <thead>
-              <tr>
-                <th><input type="checkbox" id="selectAll"></th>
-                <th>Nama</th>
-                <th>NIM</th>
-                <th>Kelas</th>
-                <th>Program Studi</th>
-                <th>Angkatan</th> 
-                <th>Email</th> 
-                <th>IPK</th> 
-                <th>Catatan</th>
-                <th>Gambar</th> 
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
+      <button id="resetFilterBtn" class="reset-btn">Reset Filter</button>
+    </div>
+    <div class="filter-right-wrap">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Cari...">
+        <span class="icon" id="clearBtn">&times;</span>
+      </div>
+
+      <button class="danger-btn" id="clearAllBtn">Hapus Semua</button>
+    </div>
+
+  </div>
+
   
-          <div class="table-footer">
-            <div class="footer-left">
-              <button id="prevPageBtn" class="page-btn">Prev</button>
-              <span id="pageInfo">Halaman 1 / 1</span>
-              <button id="nextPageBtn" class="page-btn">Next</button>
-            </div>
+  <!-- Tabel Daftar Mahasiswa -->
+  <div class="table-container">
+    <div class="table-wrapper">
+      <table cellpadding="5">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAll"></th>
+            <th>Nama</th>
+            <th>NIM</th>
+            <th>Kelas</th>
+            <th>Program Studi</th>
+            <th>Angkatan</th> 
+            <th>Email</th> 
+            <th>IPK</th> 
+            <th>Catatan</th>
+            <th>Gambar</th> 
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
 
-            <div class="footer-right">
-              <button id="selectAllBtn" class="footer-btn">Pilih Semua</button>
-              <button id="deleteSelectedBtn" class="footer-btn danger-btn">Hapus Terpilih</button>
-            </div>
-          </div>
+      <div class="table-footer">
+        <div class="footer-left">
+          <button id="prevPageBtn" class="page-btn">Prev</button>
+          <span id="pageInfo">Halaman 1 / 1</span>
+          <button id="nextPageBtn" class="page-btn">Next</button>
+        </div>
+
+        <div class="footer-right">
+          <button id="selectAllBtn" class="footer-btn">Pilih Semua</button>
+          <button id="deleteSelectedBtn" class="footer-btn danger-btn">Hapus Terpilih</button>
         </div>
       </div>
-
-      <!-- Tombol Ekspor (Floating) -->
-      <div class="export-section">
-        <button id="exportBtn">Ekspor PDF</button>
+    </div>
+  </div>
+    
+  <!-- Modal Preview Sebelum Ekspor PDF -->
+  <div id="previewModal" class="modal">
+    <div class="modal-content">
+      <span class="close-preview" style="float:right; cursor:pointer;">&times;</span>
+      <h2>Preview Data yang Akan Diekspor</h2>
+      <p id="previewInfo" style="font-style: italic; color: #444;"></p>
+      <div style="max-height: 400px; overflow:auto;">
+        <table id="previewTable">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>NIM</th>
+              <th>Kelas</th>
+              <th>Program Studi</th>
+              <th>Angkatan</th> 
+              <th>Email</th> 
+              <th>IPK</th>
+              <th>Catatan</th>
+              <th>Foto</th> 
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
-
-      <!-- Modal Preview Sebelum Ekspor PDF -->
-      <div id="previewModal" class="modal">
-        <div class="modal-content">
-          <span class="close-preview" style="float:right; cursor:pointer;">&times;</span>
-          <h2>Preview Data yang Akan Diekspor</h2>
-          <p id="previewInfo" style="font-style: italic; color: #444;"></p>
-          <div style="max-height: 400px; overflow:auto;">
-            <table id="previewTable">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Nama</th>
-                  <th>NIM</th>
-                  <th>Kelas</th>
-                  <th>Program Studi</th>
-                  <th>Angkatan</th> 
-                  <th>Email</th> 
-                  <th>IPK</th>
-                  <th>Catatan</th>
-                  <th>Foto</th> 
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div style="text-align:right; margin-top:10px;">
-            <button id="confirmExportBtn">Konfirmasi Ekspor PDF</button>
-          </div>
-        </div>
+      <div style="text-align:right; margin-top:10px;">
+        <button id="confirmExportBtn">Konfirmasi Ekspor PDF</button>
       </div>
+    </div>
+  </div>
 
-  <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- jsPDF & AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- jsPDF AutoTable -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<!-- Import XLS -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <!-- Attach JavaScript -->
-  <script src="latihan.js"></script>
-
-  <!-- Import XLS -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Attach JavaScript (HARUS TERAKHIR) -->
+<script src="latihan.js"></script>
 
 </body>
 </html>

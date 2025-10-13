@@ -67,6 +67,14 @@ body {
   box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
+#logoutBtn {
+  background-color: #ff3b30;
+  color: white;
+  padding: 8px 20px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
 h1 {
   text-align: center;
   margin-bottom: 20px;
@@ -94,6 +102,56 @@ p {
   box-sizing: border-box;
   display: flex;
   justify-content: center;
+}
+
+.summary {
+  background: linear-gradient(170deg, #021068, #0634ff,#1a2777);
+  padding: 20px 18px;
+  border-radius: 14px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 90%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  margin-top: 15px;
+  max-width: 90%; 
+}
+
+.summary button {
+  padding: 8px 20px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  color: #021068;
+  font-weight: 600;
+  outline: none;
+  min-height: 36px;
+}
+
+.sum-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sum-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#totalData, #rataIPK {
+  background: rgba(255,255,255,0.12);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  min-width: 90px;
+  text-align: center;
 }
 
 #form-mahasiswa {
@@ -204,6 +262,12 @@ input[type="file"]:focus, /* Input file */
   gap: 10px;
 }
 
+.buttonform button {
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
 button {
   padding: 8px 15px;
   border: none;
@@ -301,7 +365,7 @@ button:hover {
   padding: 6px 15px;
   border: none;
   border-radius: 15px;
-  background-color: green;
+  background-color: #021068;
   color: white;
   font-size: 14px;
   cursor: pointer;
@@ -396,7 +460,7 @@ button:hover {
 
 /* Filter wrapper utama (satu baris, rapi) */
 .filter-sort-wrapper {
-  background: #021068;
+  background: linear-gradient(170deg,#0634ff, #1a2777, #021068);
   padding: 20px 18px;
   border-radius: 14px;
   color: #fff;
@@ -726,34 +790,6 @@ td button:hover {
   color:white;
 }
 
-.export-section {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  z-index: 999;
-}
-
-#exportBtn {
-  padding: 15px 28px;
-  border: none;
-  border-radius: 40px;   
-  background: linear-gradient(135deg, #021068, #0634ff);
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(2, 16, 104, 0.35);
-}
-
-#exportBtn:hover {
-  background: linear-gradient(135deg, #0320a8, #365cff);
-  transform: scale(1.08) translateY(-3px); 
-  box-shadow: 0 12px 24px rgba(2, 16, 104, 0.45);
-}
-
 /* ------------------- MODAL PREVIEW PDF ------------------- */
 .modal {
   display: none; 
@@ -868,13 +904,17 @@ td button:hover {
 }
 
 .reset-btn {
-  background-color: #ffffff;
-  border: none;
-  border-radius: 15px;
-  padding: 6px 12px;
   margin-left: 10px;
   cursor: pointer;
   transition: background 0.2s;
+  padding: 7px 12px;
+  border-radius: 20px;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  color: #021068;
+  font-weight: 600;
+  outline: none;
+  min-height: 36px;
 }
 
 .reset-btn:hover {

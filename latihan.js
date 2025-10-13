@@ -81,13 +81,6 @@ function render(list = filteredData) {
   if (selectAllCheckbox) selectAllCheckbox.checked = false;
 }
 
-//------------------- UPDATE DATA TABEL -------------------
-function syncAndRender(resetPage = false) {
-  filteredData = [...data];
-  if (resetPage) currentPage = 1;
-  render();
-}
-
 //------------------- ATURAN TAMPILAN DATA -------------------
 function nextPage() {
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
@@ -673,194 +666,151 @@ document.getElementById("sortBy").addEventListener("change", applySort);
 document.getElementById("sortOrder").addEventListener("change", applySort);
 
 
-const exportBtn = document.getElementById("exportBtn");
-const exportOptions = document.getElementById("exportOptions");
+// === HELPER: Buat nama file sesuai filter aktif ===
+function generateExportFilename(extension) {
+  const searchVal = document.getElementById("searchInput")?.value.trim();
+  const angkatanVal = document.getElementById("filterAngkatan")?.value.trim();
+  const prodiVal = document.getElementById("filterProdi")?.value.trim();
+  const sortBy = document.getElementById("sortBy")?.value;
+  const sortOrder = document.getElementById("sortOrder")?.value;
 
-// ----------------------- EKSPOR DATA -------------------------
-// === FUNCTION: Download PDF ===
-// ----------------------- EKSPOR DATA -------------------------
-document.getElementById("exportBtn").addEventListener("click", showPreviewBeforeExport);
+  let parts = ["data_mahasiswa"];
+
+  if (angkatanVal) parts.push(`angkatan-${angkatanVal}`);
+  if (prodiVal) parts.push(`prodi-${prodiVal.replace(/\s+/g, "_")}`);
+  if (searchVal) parts.push(`search-${searchVal.replace(/\s+/g, "_")}`);
+  if (sortBy) parts.push(`sort-${sortBy}-${sortOrder}`);
+
+  const date = new Date().toISOString().split("T")[0];
+  parts.push(date);
+
+  return parts.join("_") + "." + extension;
+}
+
+// ==================== EKSPOR DATA ====================
+
+// --- EKSPOR JSON ---
+document.getElementById("exportJSON").addEventListener("click", () => {
+  if (data.length === 0) {
+    alert("Tidak ada data untuk diekspor!");
+    return;
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = generateExportFilename("json");
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// --- EKSPOR CSV ---
+document.getElementById("exportCSV").addEventListener("click", () => {
+  if (data.length === 0) {
+    alert("Tidak ada data untuk diekspor!");
+    return;
+  }
+  const header = ["Nama", "NIM", "Kelas", "Program Studi", "Angkatan", "Email", "IPK", "Catatan"];
+  const rows = data.map(m => [
+    m.nama, m.nim, m.kelas, m.prodi, m.angkatan, m.email, m.ipk, m.catatan || ""
+  ]);
+  const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
+  
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = generateExportFilename("csv");
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// --- EKSPOR PDF ---
+// --- EKSPOR PDF LANGSUNG TANPA PREVIEW ---
+document.getElementById("exportPDF").addEventListener("click", downloadPDF);
 
 function downloadPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("l", "pt", "a4"); // UBAH ke Landscape (l) untuk banyak kolom
-
-  // Ambil kondisi filter, sort, dan search
-  const searchVal = document.getElementById("searchInput").value.trim();
-  const kelasVal = document.getElementById("filterKelas").value;
-  const prodiVal = document.getElementById("filterProdi").value;
-
-  let title = "Daftar Mahasiswa";
-  let subtitleParts = [];
-
-  if (kelasVal) subtitleParts.push(`Kelas: ${kelasVal}`);
-  if (prodiVal) subtitleParts.push(`Prodi: ${prodiVal}`);
-  if (searchVal) subtitleParts.push(`Pencarian: "${searchVal}"`);
-
-  const subtitle = subtitleParts.join(" | ");
-
-  doc.setFontSize(14);
-  doc.text(title, 40, 40);
-
-  if (subtitle) {
-    doc.setFontSize(10);
-    doc.text(subtitle, 40, 58);
-  }
-
-  const startY = subtitle ? 75 : 55;
-
-  // Ambil hanya baris yang tampil di tabel
-  const visibleRows = Array.from(document.querySelectorAll("#tbody tr"))
-    .filter(tr => tr.style.display !== "none");
-
-  if (visibleRows.length === 0) {
-    alert("Tidak ada data yang cocok untuk diekspor!");
+  // Cek pustaka jsPDF sudah ada
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("Gagal memuat pustaka jsPDF. Harap refresh halaman atau periksa koneksi internet.");
     return;
   }
 
-  // Ambil isi tabel dari data mentah yang sudah difilter/sort
-  // Mapping dari data array (data) ke format yang dibutuhkan autoTable
-  const exportedData = visibleRows.map((tr, index) => {
-      // Dapatkan ID dari baris yang terlihat (untuk mencari di array data)
-      const row = data.find(item => item.id === Number(tr.querySelector('button[data-edit], button[data-del]').getAttribute('data-edit') || tr.querySelector('button[data-edit], button[data-del]').getAttribute('data-del')));
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("l", "pt", "a4"); // Landscape mode agar tabel muat banyak kolom
 
-      return [
-        index + 1, // Nomor Urut
-        row.nama,
-        row.nim,
-        row.kelas,
-        row.prodi,
-        row.angkatan, 
-        row.email,    
-        row.ipk,
-        row.catatan || '-',
-        row.gambar ? 'Terlampir' : '-' // Status Gambar
-      ];
+  // Judul laporan
+  doc.setFontSize(14);
+  doc.text("Laporan Data Mahasiswa", 40, 40);
+
+  // Informasi tambahan (waktu cetak)
+  const now = new Date();
+  const tanggal = now.toLocaleString("id-ID", { dateStyle: "full", timeStyle: "short" });
+  doc.setFontSize(10);
+  doc.text(`Dicetak pada: ${tanggal}`, 40, 58);
+
+  // Ambil data dari tabel
+  const visibleRows = Array.from(document.querySelectorAll("#tbody tr")).filter(
+    (tr) => tr.style.display !== "none"
+  );
+
+  if (visibleRows.length === 0) {
+    alert("Tidak ada data untuk diekspor!");
+    return;
+  }
+
+  // Susun isi tabel PDF dari baris yang tampil di halaman
+  const exportedData = visibleRows.map((tr, index) => {
+    const cells = tr.querySelectorAll("td");
+    return [
+      index + 1, // No
+      cells[1].textContent, // Nama
+      cells[2].textContent, // NIM
+      cells[3].textContent, // Kelas
+      cells[4].textContent, // Prodi
+      cells[5].textContent, // Angkatan
+      cells[6].textContent, // Email
+      cells[7].textContent, // IPK
+      cells[8].textContent, // Catatan
+      cells[9].textContent.includes("img") ? "Terlampir" : "-", // Gambar
+    ];
   });
 
-  // Tambahkan ke PDF
+  // Buat tabel PDF
   doc.autoTable({
-    head: [['No', 'Nama', 'NIM', 'Kelas', 'Program Studi', 'Angkatan', 'Email', 'IPK', 'Catatan', 'Gambar']], 
+    head: [["No", "Nama", "NIM", "Kelas", "Program Studi", "Angkatan", "Email", "IPK", "Catatan", "Gambar"]],
     body: exportedData,
-    startY: startY,
-    theme: 'grid',
-    headStyles: {
-      fillColor: [0, 100, 0],
-      textColor: 255,
-      fontStyle: 'bold',
-      halign: 'center'
-    },
+    startY: 75,
+    theme: "grid",
+    headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: "bold" },
     styles: { fontSize: 8, cellPadding: 5 },
     columnStyles: {
-      0: { cellWidth: 30 }, // No
-      1: { halign: 'left', cellWidth: 70 }, // Nama
-      2: { cellWidth: 50 }, // NIM
-      3: { cellWidth: 50 }, // Kelas
-      4: { halign: 'left', cellWidth: 70 }, // Prodi
-      5: { cellWidth: 40 }, // Angkatan
-      6: { halign: 'left', cellWidth: 80 }, // Email
-      7: { cellWidth: 35 }, // IPK
-      8: { halign: 'left', cellWidth: 70 }, // Catatan
-      9: { halign: 'center', cellWidth: 40 } // Gambar Status
+      0: { cellWidth: 30 },
+      1: { cellWidth: 70 },
+      2: { cellWidth: 50 },
+      3: { cellWidth: 50 },
+      4: { cellWidth: 70 },
+      5: { cellWidth: 45 },
+      6: { cellWidth: 90 },
+      7: { cellWidth: 35 },
+      8: { cellWidth: 70 },
+      9: { cellWidth: 40 },
     },
     didDrawPage: (data) => {
+      const pageCount = doc.internal.getNumberOfPages();
       doc.setFontSize(9);
       doc.text(
-        `Halaman ${doc.internal.getNumberOfPages()}`,
+        `Halaman ${pageCount}`,
         doc.internal.pageSize.getWidth() - 60,
         doc.internal.pageSize.getHeight() - 20
       );
-    }
+    },
   });
 
-  // Nama file sesuai filter aktif
-  let filename = "data_mahasiswa";
-  if (kelasVal) filename += `_kelas-${kelasVal}`;
-  if (prodiVal) filename += `_prodi-${prodiVal}`;
-  if (searchVal) filename += `_search-${searchVal.replace(/\s+/g, "_")}`;
-  filename += ".pdf";
-
+  // Nama file otomatis
+  const filename = generateExportFilename("pdf");
   doc.save(filename);
 }
-
-// ------------------- PREVIEW SEBELUM EKSPOR PDF -------------------
-const previewModal = document.getElementById("previewModal");
-const closePreview = document.querySelector(".close-preview");
-const confirmExportBtn = document.getElementById("confirmExportBtn");
-const previewTableBody = document.querySelector("#previewTable tbody");
-const previewInfo = document.getElementById("previewInfo");
-
-closePreview.addEventListener("click", () => previewModal.style.display = "none");
-window.addEventListener("click", (e) => {
-  if (e.target === previewModal) previewModal.style.display = "none";
-});
-
-function showPreviewBeforeExport() {
-  previewTableBody.innerHTML = "";
-
-  // ... (Ambil nilai filter/search sama) ...
-  const searchVal = document.getElementById("searchInput").value.trim();
-  const kelasVal = document.getElementById("filterKelas").value;
-  const prodiVal = document.getElementById("filterProdi").value;
-
-  const visibleRows = Array.from(document.querySelectorAll("#tbody tr"))
-    .filter(tr => tr.style.display !== "none");
-
-  if (visibleRows.length === 0) {
-    alert("Tidak ada data yang cocok untuk diekspor!");
-    return;
-  }
-  
-  // Update header preview table
-  document.querySelector("#previewTable thead tr").innerHTML = `
-      <th>No</th>
-      <th>Nama</th>
-      <th>NIM</th>
-      <th>Kelas</th>
-      <th>Program Studi</th>
-      <th>Angkatan</th> 
-      <th>Email</th> 
-      <th>IPK</th>
-      <th>Catatan</th> 
-      <th>Gambar</th> `;
-
-  visibleRows.forEach((tr, i) => {
-    // Kloning baris dari elemen <tr>
-    const originalRow = tr.cloneNode(true);
-    
-    // Buat baris baru untuk preview
-    const newRow = document.createElement("tr");
-
-    // 1. Tambahkan Nomor Urut (Menggantikan Checkbox)
-    const tdNo = document.createElement("td");
-    tdNo.textContent = i + 1;
-    newRow.appendChild(tdNo);
-
-    // 2. Salin kolom data (Nama, NIM, dst.) sampai sebelum Aksi
-    // Kolom data di originalRow adalah: Checkbox(0), Nama(1) ... Gambar(9), Aksi(10)
-    // Kita salin dari index 1 (Nama) sampai index 9 (Gambar)
-    
-    for (let j = 1; j < originalRow.cells.length - 1; j++) {
-        newRow.appendChild(originalRow.cells[j].cloneNode(true));
-    }
-
-    previewTableBody.appendChild(newRow);
-  });
-
-  // Info tambahan di preview
-  let infoText = [];
-  if (kelasVal) infoText.push(`Kelas: ${kelasVal}`);
-  if (prodiVal) infoText.push(`Prodi: ${prodiVal}`);
-  if (searchVal) infoText.push(`Pencarian: "${searchVal}"`);
-  previewInfo.textContent = infoText.join(" | ") || "Menampilkan semua data.";
-
-  previewModal.style.display = "block";
-}
-
-confirmExportBtn.addEventListener("click", () => {
-  previewModal.style.display = "none";
-  downloadPDF();
-});
 
 // ------------------- LOGIKA CHECKBOX BARU -------------------
 // BARU: Fungsi helper untuk menambahkan/menghapus kelas
@@ -941,6 +891,43 @@ if (deleteSelectedBtn) {
       showDeleteAlert(selectedIds.length);
     }
   });
+}
+
+// ==================== FITUR CETAK ====================
+document.getElementById("print").addEventListener("click", () => {
+  const confirmPrint = confirm("Apakah Anda ingin mencetak data mahasiswa?");
+  if (confirmPrint) {
+    window.print();
+  }
+});
+
+// ==================== FITUR SUMMARY (TOTAL DATA & RATA-RATA IPK) ====================
+
+// Fungsi hitung total data dan rata-rata IPK
+function updateSummary() {
+  const totalEl = document.getElementById("totalData");
+  const rataEl = document.getElementById("rataIPK");
+  if (!totalEl || !rataEl) return; // berhenti kalau elemen belum ada
+
+  const total = data.length;
+  const ipkValues = data
+    .map(item => parseFloat(item.ipk))
+    .filter(ipk => !isNaN(ipk));
+
+  const rata = ipkValues.length > 0
+    ? (ipkValues.reduce((a, b) => a + b, 0) / ipkValues.length).toFixed(2)
+    : "0.00";
+
+  totalEl.textContent = `Total Data: ${total}`;
+  rataEl.textContent = `Rata-rata IPK: ${rata}`;
+}
+
+// Pastikan selalu dipanggil setiap kali data berubah
+function syncAndRender(resetPage = false) {
+  filteredData = [...data];
+  if (resetPage) currentPage = 1;
+  render();
+  updateSummary(); // <--- tambahkan ini agar summary ikut terupdate
 }
 
 // === LOGOUT BUTTON ===
